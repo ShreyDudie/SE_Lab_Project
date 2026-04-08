@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-6xl mx-auto p-8">
+    <div class="flex justify-between items-center mb-10">
+        <div>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight">Student Dashboard</h1>
+            <p class="text-slate-500">Welcome back, {{ current_user.username }}. Here is your VJTI legacy.</p>
+        </div>
+        <span class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-sm uppercase shadow-lg">Student Portal</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div class="glass-card p-8 rounded-3xl bg-white shadow-sm border border-slate-50 flex flex-col justify-center">
+            <p class="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Events Joined</p>
+            <h3 class="text-6xl font-black text-indigo-600">{{ registrations|length }}</h3>
+        </div>
+
+        <div class="md:col-span-2 glass-card p-6 rounded-3xl bg-white shadow-sm border border-slate-50">
+            <p class="text-slate-400 text-xs font-black uppercase tracking-widest mb-4">Committee Announcements</p>
+            <div class="space-y-3 overflow-y-auto max-h-[160px] pr-2 scrollbar-hide">
+                {% for msg in messages %}
+                <div class="p-4 bg-indigo-50 rounded-2xl border-l-4 border-indigo-600 transition hover:bg-indigo-100">
+                    <div class="flex justify-between items-start">
+                        <h4 class="text-sm font-black text-indigo-900">{{ msg.title }}</h4>
+                        <span class="text-[9px] font-bold text-indigo-400 uppercase">{{ msg.timestamp.strftime('%d %b') }}</span>
+                    </div>
+                    <p class="text-xs text-indigo-700 mt-1 leading-relaxed">{{ msg.content }}</p>
+                </div>
+                {% endfor %}
+                {% if not messages %}
+                <div class="h-full flex items-center justify-center py-8">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-tighter">No new messages from committees</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if recommendations %}
+    <div class="mb-16">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-1.5 bg-rose-500 rounded-full"></div>
+                <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Explore VJTI Events</h2>
+            </div>
+            <span class="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-widest">Recommended for you</span>
+        </div>
+
+        <div class="flex overflow-x-auto gap-6 pb-4 scrollbar-custom snap-x">
+            {% for event in recommendations %}
+            <div class="min-w-[280px] md:min-w-[320px] bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all snap-start group">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="px-2 py-1 rounded-lg bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-widest">
+                        {{ event.committee.name }}
+                    </span>
+                    <span class="text-slate-300 text-[10px] font-bold">{{ event.date.strftime('%b %d') }}</span>
+                </div>
+                
+                <h3 class="text-md font-black text-slate-800 mb-6 line-clamp-1 group-hover:text-rose-500 transition-colors">{{ event.title }}</h3>
+                
+                <form action="{{ url_for('register_event', event_id=event.id) }}" method="POST">
+                    <button type="submit" class="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-colors shadow-sm">
+                        Quick Register
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mb-16">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-1.5 bg-indigo-600 rounded-full"></div>
+                <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Upcoming Schedule</h2>
+            </div>
+            <div class="hidden md:flex items-center gap-2">
+                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Scroll to explore</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="flex overflow-x-auto gap-6 pb-8 scrollbar-custom snap-x">
+            {% set upcoming = registrations | selectattr('event.is_completed', 'equalto', false) | list %}
+            {% for reg in upcoming %}
+            <div class="min-w-[300px] md:min-w-[360px] bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 snap-start group">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex flex-col">
+                        <time class="font-black text-indigo-600 text-sm uppercase tracking-tighter">{{ reg.event.date.strftime('%A') }}</time>
+                        <time class="font-bold text-slate-400 text-xs">{{ reg.event.date.strftime('%b %d, %Y') }}</time>
+                    </div>
+                    <span class="h-10 w-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </span>
+                </div>
+
+                <h3 class="text-xl font-black text-slate-800 mb-1 leading-tight">{{ reg.event.title }}</h3>
+                <div class="flex items-center gap-2 mb-8">
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-wider">{{ reg.event.committee.name }}</span>
+                    <span class="text-slate-300">•</span>
+                    <span class="text-slate-400 text-[10px] font-bold uppercase">{{ reg.event.start_time.strftime('%I:%M %p') }}</span>
+                </div>
+
+                <div class="flex items-center justify-between pt-6 border-t border-slate-50">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Registered</span>
+                    </div>
+                    <a href="{{ url_for('unregister', reg_id=reg.id) }}" 
+                       onclick="return confirm('Cancel registration for {{ reg.event.title }}?')"
+                       class="text-rose-400 hover:text-rose-600 text-[10px] font-black uppercase tracking-widest transition-colors">
+                        Leave Event
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="w-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] py-16 flex flex-col items-center justify-center">
+                <p class="text-slate-400 font-bold uppercase text-xs tracking-widest">No upcoming events scheduled</p>
+                <a href="{{ url_for('index') }}" class="mt-4 text-indigo-600 font-black text-xs hover:underline uppercase">Browse Events →</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <div class="flex items-center gap-3 mb-8">
+            <div class="h-8 w-1.5 bg-amber-500 rounded-full"></div>
+            <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Hall of Fame</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% set past = registrations | selectattr('event.is_completed', 'equalto', true) | list %}
+            {% for reg in past %}
+            <div class="bg-slate-900 rounded-[2.5rem] p-8 relative overflow-hidden group border border-slate-800">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 blur-3xl rounded-full"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-amber-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                        </div>
+                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Concluded</span>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-1">{{ reg.event.title }}</h3>
+                    <p class="text-slate-500 text-xs font-bold uppercase mb-6">{{ reg.event.committee.name }}</p>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        {% if reg.event.first_place_branch == current_user.department %}
+                            <span class="px-3 py-1 bg-amber-500/20 text-amber-400 rounded-lg text-[10px] font-black uppercase">Winner: 1st Place</span>
+                        {% elif reg.event.second_place_branch == current_user.department %}
+                            <span class="px-3 py-1 bg-slate-400/20 text-slate-300 rounded-lg text-[10px] font-black uppercase">Winner: 2nd Place</span>
+                        {% elif reg.event.third_place_branch == current_user.department %}
+                            <span class="px-3 py-1 bg-orange-900/40 text-orange-400 rounded-lg text-[10px] font-black uppercase">Winner: 3rd Place</span>
+                        {% endif %}
+
+                        {% if reg.status == 'Attended' %}
+                            <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-lg text-[10px] font-black uppercase border border-indigo-500/30">Attended</span>
+                        {% else %}
+                            <span class="px-3 py-1 bg-slate-800 text-slate-500 rounded-lg text-[10px] font-black uppercase">Missed</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full py-12 text-center text-slate-400 italic font-medium">Your legacy begins with your first event! Participate to see your history here.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Scrollbar for Horizontal Sliders */
+    .scrollbar-custom::-webkit-scrollbar {
+        height: 6px;
+    }
+    .scrollbar-custom::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1;
+    }
+
+    /* Standard Utilities */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Horizontal Snapping Logic */
+    .snap-x {
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    .snap-start {
+        scroll-snap-align: start;
+    }
+</style>
+{% endblock %}
