@@ -1,18 +1,15 @@
-/* Custom properties for the Indigo/Slate theme */
 :root {
     --glass-bg: rgba(255, 255, 255, 0.25);
     --glass-border: rgba(255, 255, 255, 0.18);
     --vjti-indigo: #4f46e5;
 }
 
-/* Smooth background for the entire site */
 body {
     background: radial-gradient(circle at top right, #eef2ff, #f8fafc);
     background-attachment: fixed;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* The Glassmorphism effect for cards */
 .glass-card {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -26,11 +23,10 @@ body {
 .glass-card:hover {
     background: rgba(255, 255, 255, 0.4);
     transform: translateY(-5px);
-    border-color: rgba(79, 70, 229, 0.3); /* Slight indigo glow on hover */
+    border-color: rgba(79, 70, 229, 0.3);
     box-shadow: 0 12px 40px 0 rgba(79, 70, 229, 0.15);
 }
 
-/* Custom scrollbar for that SaaS look */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -48,7 +44,6 @@ body {
     background: #94a3b8;
 }
 
-/* Simple animation for the committee cards on load */
 @keyframes fadeInUp {
     from {
         opacity: 0;

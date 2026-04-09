@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-load_dotenv() # Loads variables from .env
+load_dotenv() 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-key-for-dev')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///default.db')
@@ -19,7 +19,6 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- HELPERS ---
 def get_leaderboard(committee_id=None):
     branches = ['IT', 'CS', 'Mech', 'Prod', 'Text', 'EXTC', 'Tronics', 'Trical', 'Civil', 'Diploma']
     query = Event.query.filter_by(is_completed=True)
@@ -36,7 +35,6 @@ def get_leaderboard(committee_id=None):
                 
     return sorted(leaderboard.items(), key=lambda x: x[1], reverse=True)
 
-# --- NAVIGATION & INDEX ---
 @app.route('/')
 def index():
     if not current_user.is_authenticated:
@@ -47,12 +45,10 @@ def index():
     
     today = datetime.now().date()
     
-    # Discovery Hub Data
     upcoming = Event.query.filter(Event.date >= today, Event.is_completed == False).order_by(Event.date).all()
     past = Event.query.filter_by(is_completed=True).order_by(Event.date.desc()).limit(6).all()
     committees = Committee.query.all()
     
-    # Personalized Recommendations
     recommended = []
     if current_user.department:
         search_term = f"%{current_user.department}%"
@@ -65,8 +61,6 @@ def index():
 def committee_home(id):
     committee = Committee.query.get_or_404(id)
     leaderboard = get_leaderboard(id)
-    
-    # We fetch upcoming events for this specific committee to power the horizontal scroller
     upcoming_events = Event.query.filter_by(committee_id=id, is_completed=False).order_by(Event.date.asc()).all()
     
     registered_event_ids = []
@@ -86,7 +80,6 @@ def committee_home(id):
                            registered_event_ids=registered_event_ids,
                            participants=participants)
 
-# --- THE UNIFIED DASHBOARD ENGINE ---
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -94,7 +87,6 @@ def dashboard():
         return render_template('pending_approval.html')
 
     if current_user.role == 'student':
-        # Get active registrations for the student
         user_regs = Registration.query.filter_by(user_id=current_user.id).all()
         my_events = [r.event for r in user_regs if not r.event.is_completed]
         messages = Message.query.filter_by(user_id=current_user.id).order_by(Message.timestamp.desc()).all()
@@ -103,11 +95,14 @@ def dashboard():
 
     elif current_user.role == 'head':
         committee = Committee.query.get(current_user.assigned_committee)
-        active_events = Event.query.filter_by(committee_id=committee.id, is_completed=False).all()
-        return render_template('dashboard.html', committee=committee, active_events=active_events)
+        
+        # Split events into active and past
+        active_events = Event.query.filter_by(committee_id=committee.id, is_completed=False).order_by(Event.date.asc()).all()
+        past_events = Event.query.filter_by(committee_id=committee.id, is_completed=True).order_by(Event.date.desc()).all()
+        
+        return render_template('dashboard.html', committee=committee, active_events=active_events, past_events=past_events)
 
     elif current_user.role == 'admin':
-        # YOU NEED THESE THREE LINES:
         all_events = Event.query.order_by(Event.date.desc()).all()
         pending_heads = User.query.filter_by(role='head', is_approved=False).all()
         committees = Committee.query.all()
@@ -117,7 +112,6 @@ def dashboard():
                                pending_heads=pending_heads, 
                                committees=committees)
 
-# --- REGISTRATION LOGIC ---
 @app.route('/register_event/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def register_event(event_id):
@@ -128,7 +122,6 @@ def register_event(event_id):
         flash('Already registered for this event.', 'info')
         return redirect(url_for('dashboard'))
 
-    # Time Conflict Check
     user_regs = Registration.query.filter_by(user_id=current_user.id).all()
     for reg in user_regs:
         e = reg.event
@@ -152,7 +145,6 @@ def unregister(reg_id):
         flash('Registration cancelled.', 'info')
     return redirect(url_for('dashboard'))
 
-# --- HEAD MANAGEMENT ACTIONS ---
 @app.route('/add_event/<int:committee_id>', methods=['POST'])
 @login_required
 def add_event(committee_id):
@@ -233,7 +225,6 @@ def declare_winners(event_id):
         flash('Results published!', 'success')
     return redirect(url_for('committee_home', id=event.committee_id))
 
-# --- AUTH & ADMIN ---
 @app.route('/approve_head/<int:user_id>')
 @login_required
 def approve_head(user_id):
@@ -274,6 +265,32 @@ def signup():
     db.session.commit()
     login_user(new_user)
     return redirect(url_for('dashboard'))
+
+@app.route('/event_results/<int:event_id>')
+@login_required
+def event_results(event_id):
+    event = Event.query.get_or_404(event_id)
+    
+    # Security: Only allow Admin or the specific Committee Head to see detailed results
+    if current_user.role != 'admin' and not (current_user.role == 'head' and current_user.assigned_committee == event.committee_id):
+        flash("Unauthorized access to event records.", "danger")
+        return redirect(url_for('dashboard'))
+
+    # Calculate Attendance Analytics
+    registrations = Registration.query.filter_by(event_id=event_id).all()
+    total_reg = len(registrations)
+    attended_count = sum(1 for r in registrations if r.status == 'Attended')
+    attendance_rate = (attended_count / total_reg * 100) if total_reg > 0 else 0
+    
+    # Filter only attendees for the participant list
+    attendees = [r for r in registrations if r.status == 'Attended']
+
+    return render_template('event_results.html', 
+                           event=event, 
+                           total_reg=total_reg, 
+                           attended_count=attended_count, 
+                           attendance_rate=round(attendance_rate, 1),
+                           attendees=attendees)
 
 if __name__ == '__main__':
     with app.app_context():

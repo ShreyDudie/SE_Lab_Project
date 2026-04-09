@@ -3,10 +3,8 @@ from models import User, Committee
 
 def setup_database():
     with app.app_context():
-        # Create tables
         db.create_all()
         
-        # 1. Initialize Committees
         if not Committee.query.first():
             committees_data = [
                 {"name": "COC", "description": "The coding hub of VJTI."},
@@ -19,8 +17,6 @@ def setup_database():
             db.session.commit()
             print("Committees initialized.")
 
-        # 2. Initialize Users Dynamically
-        # Format: (Username, Password, Role, Committee_Name)
         initial_users = [
             ("admin", "admin123", "admin", None),
             ("cochead", "cochead123", "head", "COC"),
@@ -33,7 +29,6 @@ def setup_database():
             if not User.query.filter_by(username=username).first():
                 comm_id = None
                 if comm_name:
-                    # Look up the ID by name so it's always correct
                     target_comm = Committee.query.filter_by(name=comm_name).first()
                     if target_comm:
                         comm_id = target_comm.id
@@ -43,7 +38,7 @@ def setup_database():
                     password=password, 
                     role=role, 
                     assigned_committee=comm_id,
-                    department="Central" if role == "admin" else "Faculty" # Optional default
+                    department="Central" if role == "admin" else "Faculty" 
                 )
                 db.session.add(new_user)
         

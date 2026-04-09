@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 pt-16 pb-12">
+    <div class="mb-12">
+        <a href="{{ url_for('dashboard') }}" class="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2 mb-4 hover:gap-4 transition-all">
+            <i class="fas fa-arrow-left"></i> Back to Console
+        </a>
+        <h1 class="text-4xl font-black text-slate-900 tracking-tight mb-2">{{ event.title }}</h1>
+        <p class="text-slate-500 font-medium">Post-Event Performance Report • {{ event.date.strftime('%B %d, %Y') }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-2 bg-white rounded-[3rem] border border-slate-100 p-10 shadow-sm">
+            <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-10">Podium Standings</h2>
+            
+            <div class="space-y-6">
+                <div class="flex items-center gap-6 p-6 bg-amber-50 rounded-3xl border border-amber-100">
+                    <span class="text-3xl">🥇</span>
+                    <div>
+                        <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">First Place</p>
+                        <p class="text-xl font-black text-slate-800">{{ event.first_place_branch }}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Second Place</p>
+                        <p class="text-lg font-black text-slate-800">{{ event.second_place_branch }}</p>
+                    </div>
+                    <div class="p-6 bg-orange-50 rounded-3xl border border-orange-100">
+                        <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest">Third Place</p>
+                        <p class="text-lg font-black text-slate-800">{{ event.third_place_branch }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-[3rem] p-10 text-white shadow-xl flex flex-col justify-between">
+            <div>
+                <h2 class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-8">Engagement</h2>
+                <div class="mb-6">
+                    <p class="text-5xl font-black mb-2">{{ attendance_rate }}%</p>
+                    <p class="text-xs text-slate-400">Attendance Rate</p>
+                </div>
+                <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden mb-8">
+                    <div class="h-full bg-indigo-500" style="width: {{ attendance_rate }}%"></div>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-white/10 space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-slate-400 font-bold">Total Registered</span>
+                    <span class="font-black">{{ total_reg }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-slate-400 font-bold">Total Attended</span>
+                    <span class="font-black text-emerald-400">{{ attended_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">Official Participant Log</h3>
+                <span class="px-4 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-tighter">Verified</span>
+            </div>
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50/50">
+                        <th class="px-10 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Student Name</th>
+                        <th class="px-10 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Department</th>
+                        <th class="px-10 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Verification</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for reg in attendees %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-10 py-6 text-sm font-bold text-slate-800">{{ reg.user.username }}</td>
+                        <td class="px-10 py-6 text-xs font-black text-indigo-600 uppercase">{{ reg.user.department }}</td>
+                        <td class="px-10 py-6 text-right">
+                            <i class="fas fa-check-circle text-emerald-500 text-xs"></i>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="px-10 py-20 text-center text-slate-400 font-medium italic">No attendance records found for this event.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
