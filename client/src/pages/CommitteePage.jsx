@@ -5,13 +5,12 @@ import { useFlash } from '../components/FlashMessage';
 import LeaderboardTable from '../components/LeaderboardTable';
 import Modal from '../components/Modal';
 
-const DEPARTMENTS = ['IT', 'CS', 'Mech', 'Prod', 'Text', 'EXTC', 'Tronics', 'Trical', 'Civil', 'Diploma'];
-
 export default function CommitteePage() {
   const { id } = useParams();
   const { user } = useAuth();
   const flash = useFlash();
   const [data, setData] = useState(null);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Modals
@@ -35,6 +34,10 @@ export default function CommitteePage() {
   };
 
   useEffect(() => { fetchData(); }, [id]);
+
+  useEffect(() => {
+    fetch('/api/departments').then(r => r.json()).then(d => setDepartments(d.departments || [])).catch(() => {});
+  }, []);
 
   const isHead = user?.role === 'head' && user?.assigned_committee === parseInt(id);
   const isAdmin = user?.role === 'admin';
@@ -358,7 +361,7 @@ export default function CommitteePage() {
               <select className="form-select" value={winnerForm[place.key]}
                 onChange={e => setWinnerForm({ ...winnerForm, [place.key]: e.target.value })} required>
                 <option value="">Select Department</option>
-                {DEPARTMENTS.map(d => <option key={d} value={d}>{d} Department</option>)}
+                {departments.map(d => <option key={d.id} value={d.name}>{d.name} Department</option>)}
               </select>
             </div>
           ))}

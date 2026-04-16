@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlash } from '../components/FlashMessage';
-
-const DEPARTMENTS = ['IT', 'CS', 'Mech', 'Prod', 'Text', 'EXTC', 'Tronics', 'Trical', 'Civil', 'Diploma'];
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ username: '', password: '', role: 'student', department: 'IT', committee_id: '' });
   const [committees, setCommittees] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loadedComms, setLoadedComms] = useState(false);
   const { login, signup } = useAuth();
   const flash = useFlash();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch('/api/departments').then(r => r.json()).then(d => setDepartments(d.departments || [])).catch(() => {});
+  }, []);
 
   const loadCommittees = async () => {
     if (loadedComms) return;
@@ -105,7 +108,8 @@ export default function LoginPage() {
                 <div className="form-group">
                   <label className="form-label">Department</label>
                   <select className="form-select" name="department" value={form.department} onChange={handleChange}>
-                    {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                    <option value="">Select...</option>
+                    {departments.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
                   </select>
                 </div>
               </div>

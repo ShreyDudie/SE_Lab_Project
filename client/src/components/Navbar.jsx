@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar() {
+export default function Navbar({ onToggleSidebar }) {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -11,28 +11,31 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-brand">
-          <div className="navbar-crest">
-            <i className="fas fa-university"></i>
-          </div>
-          VJTI Committee Manager
-        </Link>
+        <div className="navbar-left">
+          {user && (
+            <button className="sidebar-toggle" onClick={onToggleSidebar} aria-label="Toggle sidebar">
+              <i className="fas fa-bars"></i>
+            </button>
+          )}
+          <Link to="/" className="navbar-brand">
+            <div className="navbar-crest">
+              <i className="fas fa-university"></i>
+            </div>
+            VJTI Committee Manager
+          </Link>
+        </div>
 
-        <div className="navbar-links">
-          <Link to="/">Explore</Link>
-
+        <div className="navbar-right">
           {user ? (
-            <>
-              <Link to="/dashboard">Dashboard</Link>
-              <div className="navbar-user">
-                <div className="navbar-avatar">
-                  {user.username.slice(0, 2).toUpperCase()}
-                </div>
-                <button className="navbar-logout" onClick={handleLogout}>
-                  Logout
-                </button>
+            <div className="navbar-user">
+              <div className="navbar-avatar">
+                {user.username.slice(0, 2).toUpperCase()}
               </div>
-            </>
+              <span className="navbar-username">{user.username}</span>
+              <button className="navbar-logout" onClick={handleLogout}>
+                <i className="fas fa-sign-out-alt"></i> Logout
+              </button>
+            </div>
           ) : (
             <Link to="/login" className="btn btn-gold btn-sm">Sign In</Link>
           )}

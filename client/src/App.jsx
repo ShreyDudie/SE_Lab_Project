@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { FlashProvider } from './components/FlashMessage';
 import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -13,6 +15,7 @@ import PendingApprovalPage from './pages/PendingApprovalPage';
 
 export default function App() {
   const { user, loading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) {
     return (
@@ -27,23 +30,28 @@ export default function App() {
   return (
     <FlashProvider>
       <div className="app-wrapper">
-        <Navbar />
-        <Routes>
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
-          <Route path="/" element={
-            <ProtectedRoute>
-              {user?.role === 'head' || user?.role === 'admin'
-                ? <Navigate to="/dashboard" />
-                : <IndexPage />}
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/committee/:id" element={<ProtectedRoute><CommitteePage /></ProtectedRoute>} />
-          <Route path="/event_results/:id" element={<ProtectedRoute><EventResultsPage /></ProtectedRoute>} />
-          <Route path="/pending" element={<ProtectedRoute><PendingApprovalPage /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-        <Footer />
+        <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
+        <div className="app-body">
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <div className={`app-main ${user && sidebarOpen ? 'with-sidebar' : ''}`}>
+            <Routes>
+              <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  {user?.role === 'head' || user?.role === 'admin'
+                    ? <Navigate to="/dashboard" />
+                    : <IndexPage />}
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+              <Route path="/committee/:id" element={<ProtectedRoute><CommitteePage /></ProtectedRoute>} />
+              <Route path="/event_results/:id" element={<ProtectedRoute><EventResultsPage /></ProtectedRoute>} />
+              <Route path="/pending" element={<ProtectedRoute><PendingApprovalPage /></ProtectedRoute>} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+            <Footer />
+          </div>
+        </div>
       </div>
     </FlashProvider>
   );

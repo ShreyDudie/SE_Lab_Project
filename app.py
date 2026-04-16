@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
-from models import db, User, Committee, Event, Registration, Message
+from models import db, User, Committee, Event, Registration, Message, Department, Tag, EventTag, EventResult
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -26,18 +26,21 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 def get_leaderboard(committee_id=None):
-    branches = ['IT', 'CS', 'Mech', 'Prod', 'Text', 'EXTC', 'Tronics', 'Trical', 'Civil', 'Diploma']
-    query = Event.query.filter_by(is_completed=True)
+    """Build leaderboard from normalized EventResult + Department tables."""
+    departments = Department.query.all()
+    leaderboard = {d.name: 0 for d in departments}
+    
+    points_map = {1: 10, 2: 5, 3: 3}
+    
+    query = EventResult.query.join(Event).filter(Event.is_completed == True)
     if committee_id:
-        query = query.filter_by(committee_id=committee_id)
+        query = query.filter(Event.committee_id == committee_id)
     
-    events = query.all()
-    leaderboard = {branch: 0 for branch in branches} 
-    
-    for e in events:
-        for branch, pts in [(e.first_place_branch, 10), (e.second_place_branch, 5), (e.third_place_branch, 3)]:
-            if branch in leaderboard: 
-                leaderboard[branch] += pts
+    results = query.all()
+    for r in results:
+        dept_name = r.department.name
+        if dept_name in leaderboard:
+            leaderboard[dept_name] += points_map.get(r.place, 0)
                 
     return sorted(leaderboard.items(), key=lambda x: x[1], reverse=True)
 
@@ -72,11 +75,19 @@ def signup():
     if existing:
         return jsonify({'error': 'Username already taken'}), 400
     
+    # Resolve department name to FK
+    department_id = None
+    dept_name = data.get('department')
+    if dept_name:
+        dept = Department.query.filter_by(name=dept_name).first()
+        if dept:
+            department_id = dept.id
+    
     new_user = User(
         username=data.get('username'),
         password=data.get('password'),
         role=role,
-        department=data.get('department'),
+        department_id=department_id,
         assigned_committee=data.get('committee_id') if role == 'head' else None,
         is_approved=(role == 'student')
     )
@@ -87,6 +98,12 @@ def signup():
 
 # ─── Data Endpoints ──────────────────────────────────────────────
 
+@app.route('/api/departments')
+def get_departments():
+    """Return all departments for dropdowns."""
+    depts = Department.query.order_by(Department.name).all()
+    return jsonify({'departments': [d.to_dict() for d in depts]})
+
 @app.route('/api/index')
 @login_required
 def index():
@@ -96,10 +113,15 @@ def index():
     past = Event.query.filter_by(is_completed=True).order_by(Event.date.desc()).limit(6).all()
     committees = Committee.query.all()
     
+    # Recommendations: find events tagged with user's department
     recommended = []
-    if current_user.department:
-        search_term = f"%{current_user.department}%"
-        recommended = Event.query.filter(Event.tags.ilike(search_term), Event.is_completed == False).limit(5).all()
+    if current_user.dept:
+        dept_tag = Tag.query.filter_by(name=current_user.dept.name).first()
+        if dept_tag:
+            recommended = Event.query.filter(
+                Event.tags.any(Tag.id == dept_tag.id),
+                Event.is_completed == False
+            ).limit(5).all()
 
     return jsonify({
         'committees': [c.to_dict() for c in committees],
@@ -214,6 +236,23 @@ def unregister(reg_id):
         return jsonify({'message': 'Registration cancelled.'})
     return jsonify({'error': 'Unauthorized'}), 403
 
+def _sync_event_tags(event, tags_string):
+    """Parse a comma-separated tags string and sync to normalized Tag + EventTag tables."""
+    # Clear existing tags
+    EventTag.query.filter_by(event_id=event.id).delete()
+    
+    if not tags_string:
+        return
+    
+    tag_names = [t.strip() for t in tags_string.split(',') if t.strip()]
+    for name in tag_names:
+        tag = Tag.query.filter_by(name=name).first()
+        if not tag:
+            tag = Tag(name=name)
+            db.session.add(tag)
+            db.session.flush()  # get the ID
+        db.session.add(EventTag(event_id=event.id, tag_id=tag.id))
+
 @app.route('/api/add_event/<int:committee_id>', methods=['POST'])
 @login_required
 def add_event(committee_id):
@@ -225,10 +264,11 @@ def add_event(committee_id):
             start_time=datetime.strptime(data.get('start_time'), '%H:%M').time(),
             end_time=datetime.strptime(data.get('end_time'), '%H:%M').time(),
             details=data.get('details'),
-            tags=data.get('tags', ""),
             committee_id=committee_id
         )
         db.session.add(new_event)
+        db.session.flush()  # get ID before syncing tags
+        _sync_event_tags(new_event, data.get('tags', ''))
         db.session.commit()
         return jsonify({'message': 'Event created!', 'event': new_event.to_dict()})
     return jsonify({'error': 'Unauthorized'}), 403
@@ -241,10 +281,10 @@ def edit_event(event_id):
         data = request.get_json()
         event.title = data.get('title')
         event.details = data.get('details')
-        event.tags = data.get('tags', "")
         event.date = datetime.strptime(data.get('date'), '%Y-%m-%d').date()
         event.start_time = datetime.strptime(data.get('start_time'), '%H:%M').time()
         event.end_time = datetime.strptime(data.get('end_time'), '%H:%M').time()
+        _sync_event_tags(event, data.get('tags', ''))
         db.session.commit()
         return jsonify({'message': 'Event updated!', 'event': event.to_dict()})
     return jsonify({'error': 'Unauthorized'}), 403
@@ -256,6 +296,8 @@ def delete_event(event_id):
     comm_id = event.committee_id
     if current_user.role == 'admin' or (current_user.role == 'head' and current_user.assigned_committee == comm_id):
         Registration.query.filter_by(event_id=event.id).delete()
+        EventTag.query.filter_by(event_id=event.id).delete()
+        EventResult.query.filter_by(event_id=event.id).delete()
         db.session.delete(event)
         db.session.commit()
         return jsonify({'message': 'Event deleted.'})
@@ -290,9 +332,18 @@ def declare_winners(event_id):
     event = Event.query.get_or_404(event_id)
     if current_user.role == 'head' and current_user.assigned_committee == event.committee_id:
         data = request.get_json()
-        event.first_place_branch = data.get('first')
-        event.second_place_branch = data.get('second')
-        event.third_place_branch = data.get('third')
+        
+        # Clear any existing results for this event
+        EventResult.query.filter_by(event_id=event_id).delete()
+        
+        # Create normalized EventResult rows
+        for place, key in [(1, 'first'), (2, 'second'), (3, 'third')]:
+            dept_name = data.get(key)
+            if dept_name:
+                dept = Department.query.filter_by(name=dept_name).first()
+                if dept:
+                    db.session.add(EventResult(event_id=event_id, place=place, department_id=dept.id))
+        
         event.is_completed = True
         db.session.commit()
         return jsonify({'message': 'Results published!'})
