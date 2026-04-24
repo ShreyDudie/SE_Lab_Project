@@ -59,8 +59,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-card">
+    <div className="login-wrapper-enhanced">
+      {/* Floating shapes background */}
+      <div className="hero-floating-shapes" style={{ position: 'absolute', inset: 0 }}>
+        <span style={{ background: 'var(--gold)' }}></span>
+        <span style={{ background: 'var(--burgundy)' }}></span>
+        <span style={{ background: 'var(--gold-light)' }}></span>
+        <span style={{ background: 'var(--navy-light)' }}></span>
+        <span style={{ background: 'var(--gold)' }}></span>
+        <span style={{ background: 'var(--burgundy)' }}></span>
+      </div>
+
+      <div className="login-card-enhanced">
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <div className="navbar-crest" style={{ width: 48, height: 48, fontSize: '1.1rem', margin: '0 auto 0.75rem', borderRadius: 'var(--radius)' }}>
             <i className="fas fa-university"></i>

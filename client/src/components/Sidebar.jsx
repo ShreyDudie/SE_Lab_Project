@@ -104,10 +104,26 @@ function CommitteeLinks({ onNavigate }) {
     'Pratibimb': 'fa-palette'
   };
 
+  const dotColors = {
+    'COC': '#22C55E',
+    'Enthusia': '#F59E0B',
+    'Technovanza': '#3B82F6',
+    'Pratibimb': '#DC2626'
+  };
+
   return (
     <>
       {committees.map(c => (
         <button key={c.id} className="sidebar-link" onClick={() => onNavigate(`/committee/${c.id}`)}>
+          <span style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: dotColors[c.name] || 'var(--text-muted)',
+            display: 'inline-block',
+            flexShrink: 0,
+            boxShadow: `0 0 6px ${dotColors[c.name] || 'transparent'}44`
+          }}></span>
           <i className={`fas ${icons[c.name] || 'fa-flag'}`}></i>
           <span>{c.name}</span>
         </button>

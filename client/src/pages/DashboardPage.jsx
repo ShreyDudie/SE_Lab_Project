@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlash } from '../components/FlashMessage';
@@ -54,18 +54,20 @@ export default function DashboardPage() {
         {data.my_events.length > 0 ? (
           <div className="card-grid mb-3">
             {data.my_events.map(event => (
-              <div className="card" key={event.id}>
+              <div className="card card-hover-lift" key={event.id}>
                 <div className="flex-between mb-1">
                   <span className="badge badge-navy">{event.committee_name}</span>
                   <span className="badge badge-success">Confirmed</span>
                 </div>
                 <h3 style={{ margin: '0.4rem 0' }}>{event.title}</h3>
-                <div className="gap-row" style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>
-                  <i className="fas fa-calendar-alt" style={{ fontSize: '0.7rem' }}></i>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                  <i className="fas fa-calendar-alt" style={{ marginRight: '6px' }}></i>
                   {new Date(event.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  <span style={{ color: 'var(--border)' }}>|</span>
-                  <i className="fas fa-clock" style={{ fontSize: '0.7rem' }}></i>
-                  {event.start_time}
+                </p>
+                <div style={{ marginTop: 'auto', borderTop: '1px dashed var(--border-light)', paddingTop: '1rem' }}>
+                  <Link to={`/committee/${event.committee_name}`} className="btn btn-outline btn-sm">
+                    Go to Portal <i className="fas fa-chevron-right" style={{ fontSize: '0.6rem', marginLeft: '4px' }}></i>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -81,20 +83,55 @@ export default function DashboardPage() {
           <h2 className="section-title">Notifications</h2>
         </div>
         {data.messages.length > 0 ? (
-          <div>
-            {data.messages.map(msg => (
-              <div className="message-card" key={msg.id}>
-                <h4>{msg.title}</h4>
-                <p>{msg.content}</p>
+          <div className="messages-list">
+            {data.messages.map((msg, idx) => (
+              <div className="message-card" key={msg.id} style={{ background: 'var(--white)', border: '1px solid var(--border)', borderLeft: '4px solid var(--info)', padding: '1.25rem', borderRadius: 'var(--radius)', marginBottom: '1rem', boxShadow: 'var(--shadow-sm)' }}>
+                <h4 style={{ color: 'var(--navy)', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem' }}>
+                  <i className="fas fa-bell" style={{ color: 'var(--info)' }}></i> {msg.title}
+                </h4>
+                <p style={{ color: 'var(--text)', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>{msg.content}</p>
               </div>
             ))}
           </div>
         ) : (
           <div className="empty-state">
             <i className="fas fa-bell-slash"></i>
-            <p>No notifications.</p>
+            <p>No new notifications from committees.</p>
           </div>
         )}
+        <section className="mt-3">
+          <div className="section-header">
+            <h2 className="section-title">Hall of Fame</h2>
+          </div>
+          {data.past && data.past.length > 0 ? (
+            <div className="card-grid">
+              {data.past.map(event => (
+                <div className="card card-hover-lift" key={event.id}>
+                  <div className="flex-between mb-1" style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>
+                    <span>{new Date(event.date + 'T00:00:00').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</span>
+                    <i className="fas fa-award" style={{ color: 'var(--gold)' }}></i>
+                  </div>
+                  <h3 style={{ margin: '0.4rem 0', fontSize: '1.1rem' }}>{event.title}</h3>
+                  <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <div className="flex-between" style={{ background: 'var(--warning-bg)', padding: '0.4rem 0.6rem', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--warning)' }}>WINNER</span>
+                      <span className="badge badge-gold">{event.first_place_branch || '—'}</span>
+                    </div>
+                    <div className="flex-between" style={{ padding: '0.2rem 0.6rem' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)' }}>RUNNER UP</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>{event.second_place_branch || '—'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <i className="fas fa-trophy"></i>
+              <p>No Hall of Fame results to display yet.</p>
+            </div>
+          )}
+        </section>
       </div>
     );
   }
@@ -132,7 +169,7 @@ export default function DashboardPage() {
         {data.active_events.length > 0 ? (
           <div className="card-grid mb-3">
             {data.active_events.map(event => (
-              <div className="card" key={event.id}>
+              <div className="card card-hover-lift" key={event.id}>
                 <div className="flex-between mb-1">
                   <span className="badge badge-success">Active</span>
                 </div>
@@ -188,12 +225,37 @@ export default function DashboardPage() {
       const d = await res.json();
       if (res.ok) {
         flash(d.message, 'success');
-        // Refresh
         window.location.reload();
       } else {
         flash(d.error, 'error');
       }
     };
+
+    // Analytics calculations
+    const totalEvents = data.all_events.length;
+    const activeEvents = data.all_events.filter(e => !e.is_completed).length;
+    const completedEvents = data.all_events.filter(e => e.is_completed).length;
+    const totalRegistrations = data.all_events.reduce((sum, e) => sum + (e.registration_count || 0), 0);
+
+    // Committee event counts for bar chart
+    const committeeStats = {};
+    data.all_events.forEach(e => {
+      const name = e.committee_name || 'Unknown';
+      if (!committeeStats[name]) committeeStats[name] = { events: 0, registrations: 0 };
+      committeeStats[name].events += 1;
+      committeeStats[name].registrations += (e.registration_count || 0);
+    });
+    const maxRegs = Math.max(...Object.values(committeeStats).map(c => c.registrations), 1);
+
+    const committeeColors = {
+      'Pratibimb': '#DC2626',
+      'Enthusia': '#F59E0B',
+      'Technovanza': '#3B82F6',
+      'COC': '#22C55E',
+    };
+
+    // Most popular committee
+    const mostPopular = Object.entries(committeeStats).sort((a, b) => b[1].registrations - a[1].registrations)[0];
 
     return (
       <div className="main-content">
@@ -203,6 +265,59 @@ export default function DashboardPage() {
           <p className="page-sub">Logged in as <strong>{user.username}</strong></p>
         </div>
 
+        {/* ═══ Analytics Dashboard ═══ */}
+        <div className="analytics-grid section-reveal">
+          <div className="analytics-card">
+            <div className="analytics-icon" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
+              <i className="fas fa-calendar-alt"></i>
+            </div>
+            <div className="analytics-value">{totalEvents}</div>
+            <div className="analytics-label">Total Events</div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-icon" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
+              <i className="fas fa-bolt"></i>
+            </div>
+            <div className="analytics-value">{activeEvents}</div>
+            <div className="analytics-label">Active Events</div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-icon" style={{ background: '#FEF3C7', color: '#92400E' }}>
+              <i className="fas fa-users"></i>
+            </div>
+            <div className="analytics-value">{totalRegistrations}</div>
+            <div className="analytics-label">Total Registrations</div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-icon" style={{ background: '#FCE7F3', color: '#9D174D' }}>
+              <i className="fas fa-star"></i>
+            </div>
+            <div className="analytics-value" style={{ fontSize: '1.2rem' }}>{mostPopular ? mostPopular[0] : '—'}</div>
+            <div className="analytics-label">Most Popular</div>
+          </div>
+        </div>
+
+        {/* ═══ Committee Performance Bar Chart ═══ */}
+        <div className="analytics-bar-chart mb-3 section-reveal">
+          <div className="section-header" style={{ marginBottom: '1rem' }}>
+            <h2 className="section-title" style={{ fontSize: '1rem' }}>Committee Engagement</h2>
+          </div>
+          {Object.entries(committeeStats).map(([name, stats]) => (
+            <div className="bar-row" key={name}>
+              <span className="bar-label">{name}</span>
+              <div className="bar-track">
+                <div className="bar-fill" style={{
+                  width: `${Math.max((stats.registrations / maxRegs) * 100, 8)}%`,
+                  background: committeeColors[name] || 'var(--navy)'
+                }}>
+                  {stats.registrations} reg · {stats.events} events
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ═══ Existing Admin Sections (PRESERVED) ═══ */}
         <div className="stats-row">
           <div className="stat-card">
             <div className="stat-value">{data.all_events.length}</div>
@@ -217,7 +332,7 @@ export default function DashboardPage() {
             <div className="stat-label">Committees</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value text-success">●</div>
+            <div className="stat-value text-success">Working</div>
             <div className="stat-label">System Status</div>
           </div>
         </div>

@@ -110,7 +110,7 @@ def index():
     today = datetime.now().date()
     
     upcoming = Event.query.filter(Event.date >= today, Event.is_completed == False).order_by(Event.date).all()
-    past = Event.query.filter_by(is_completed=True).order_by(Event.date.desc()).limit(6).all()
+    past = Event.query.filter_by(is_completed=True).order_by(Event.date.desc()).limit(4).all()
     committees = Committee.query.all()
     
     # Recommendations: find events tagged with user's department
@@ -123,11 +123,17 @@ def index():
                 Event.is_completed == False
             ).limit(5).all()
 
+    my_events = []
+    if current_user.role == 'student':
+        user_regs = Registration.query.filter_by(user_id=current_user.id).all()
+        my_events = [r.event.to_dict() for r in user_regs if not r.event.is_completed]
+
     return jsonify({
         'committees': [c.to_dict() for c in committees],
         'upcoming': [e.to_dict() for e in upcoming],
         'recommended': [e.to_dict() for e in recommended],
-        'past': [e.to_dict() for e in past]
+        'past': [e.to_dict() for e in past],
+        'my_events': my_events
     })
 
 @app.route('/api/committees')
@@ -142,13 +148,18 @@ def committee_home(id):
     committee = Committee.query.get_or_404(id)
     leaderboard = get_leaderboard(id)
     upcoming_events = Event.query.filter_by(committee_id=id, is_completed=False).order_by(Event.date.asc()).all()
+    past_events = Event.query.filter_by(committee_id=id, is_completed=True).order_by(Event.date.desc()).limit(4).all()
     
     registered_event_ids = []
     participants = []
+    my_events = []
 
     if current_user.role == 'student':
         regs = Registration.query.filter_by(user_id=current_user.id).all()
         registered_event_ids = [r.event_id for r in regs]
+        # Get active events registered by this user specifically for this committee
+        committee_regs = Registration.query.filter_by(user_id=current_user.id).join(Event).filter(Event.committee_id == id, Event.is_completed == False).all()
+        my_events = [r.event.to_dict() for r in committee_regs]
     
     if current_user.role == 'head':
         participants = Registration.query.join(Event).filter(Event.committee_id == id).all()
@@ -159,7 +170,9 @@ def committee_home(id):
         'upcoming_events': [e.to_dict() for e in upcoming_events],
         'registered_event_ids': registered_event_ids,
         'participants': [r.to_dict() for r in participants],
-        'all_events': [e.to_dict() for e in committee.events]
+        'all_events': [e.to_dict() for e in committee.events],
+        'past': [e.to_dict() for e in past_events],
+        'my_events': my_events
     })
 
 @app.route('/api/dashboard')
@@ -172,11 +185,13 @@ def dashboard():
         user_regs = Registration.query.filter_by(user_id=current_user.id).all()
         my_events = [r.event.to_dict() for r in user_regs if not r.event.is_completed]
         messages = [m.to_dict() for m in Message.query.filter_by(user_id=current_user.id).order_by(Message.timestamp.desc()).all()]
+        past = Event.query.filter_by(is_completed=True).order_by(Event.date.desc()).limit(4).all()
         
         return jsonify({
             'role': 'student',
             'my_events': my_events,
-            'messages': messages
+            'messages': messages,
+            'past': [e.to_dict() for e in past]
         })
 
     elif current_user.role == 'head':

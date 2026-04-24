@@ -12,6 +12,7 @@ import DashboardPage from './pages/DashboardPage';
 import CommitteePage from './pages/CommitteePage';
 import EventResultsPage from './pages/EventResultsPage';
 import PendingApprovalPage from './pages/PendingApprovalPage';
+import MouseAura from './components/MouseAura';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ export default function App() {
 
   return (
     <FlashProvider>
+      <MouseAura />
       <div className="app-wrapper">
         <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
         <div className="app-body">
