@@ -22,6 +22,8 @@ The 2.0 release focuses on bridging the gap between creative "Committee Universe
 
 ---
 
+> **Presenting this?** Use the polished, step-by-step script in [workflow.md](workflow.md).
+
 ## 🏛️ Judge Demonstration Flow (Recommended)
 
 Follow these steps to experience the full feature set and UI transitions of the platform:
@@ -74,9 +76,12 @@ Follow these steps to experience the full feature set and UI transitions of the 
 ### 1. Database & Backend Setup
 ```bash
 pip install -r requirements.txt
-python init_db.py  # Seed the database
-python app.py      # Starts Flask on port 5000
+python init_db.py          # Create tables + admin / committee-head accounts
+python seed_demo_data.py   # Populate realistic demo data (events, results, students, registrations)
+python app.py              # Starts Flask on port 5000
 ```
+
+`seed_demo_data.py` is safe to re-run at any time to reset the demo. See [workflow.md](workflow.md) for the step-by-step demo script and all demo credentials.
 
 ### 2. Frontend Setup
 ```bash

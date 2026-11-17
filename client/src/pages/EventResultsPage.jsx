@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import ErrorState from '../components/ErrorState';
+import Skeleton from '../components/Skeleton';
 
 export default function EventResultsPage() {
   const { id } = useParams();
@@ -16,23 +18,15 @@ export default function EventResultsPage() {
       .catch(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="main-content text-center"><p className="text-muted mt-3">Loading...</p></div>;
-  if (!data) return (
-    <div className="main-content">
-      <div className="empty-state">
-        <i className="fas fa-lock"></i>
-        <p>Unauthorized or event not found.</p>
-        <Link to="/dashboard" className="btn btn-outline mt-2">Back to Dashboard</Link>
-      </div>
-    </div>
-  );
+  if (loading) return <Skeleton variant="dashboard" />;
+  if (!data) return <ErrorState kind="forbidden" title="Report unavailable" text="This report either does not exist or is only visible to the committee head and administrators." />;
 
   const { event, total_reg, attended_count, attendance_rate, attendees } = data;
 
   return (
     <div className="main-content">
-      <Link to="/dashboard" className="gap-row mb-2" style={{ fontSize: '0.8rem', color: 'var(--burgundy)' }}>
-        <i className="fas fa-arrow-left" style={{ fontSize: '0.65rem' }}></i> Back to Dashboard
+      <Link to="/dashboard" className="gap-row mb-2" style={{ fontSize: '0.88rem', color: 'var(--burgundy)' }}>
+        <i className="fas fa-arrow-left" style={{ fontSize: '0.8rem' }}></i> Back to Dashboard
       </Link>
 
       <div className="page-header">
@@ -77,18 +71,18 @@ export default function EventResultsPage() {
           <div className="leaderboard-panel">
             <div style={{ marginBottom: '1rem' }}>
               <p style={{ fontSize: '2.5rem', fontWeight: 800, fontFamily: 'var(--font-heading)' }}>{attendance_rate}%</p>
-              <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)' }}>Attendance Rate</p>
+              <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)' }}>Attendance Rate</p>
             </div>
             <div style={{ height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden', marginBottom: '1.25rem' }}>
               <div style={{ height: '100%', width: `${attendance_rate}%`, background: 'var(--gold)', borderRadius: 3 }}></div>
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.75rem' }}>
               <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)' }}>Total Registered</span>
+                <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)' }}>Total Registered</span>
                 <span style={{ fontWeight: 800 }}>{total_reg}</span>
               </div>
               <div className="flex-between">
-                <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.5)' }}>Total Attended</span>
+                <span style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)' }}>Total Attended</span>
                 <span style={{ fontWeight: 800, color: 'var(--gold-light)' }}>{attended_count}</span>
               </div>
             </div>
@@ -114,7 +108,7 @@ export default function EventResultsPage() {
             {attendees.length > 0 ? attendees.map(reg => (
               <tr key={reg.id}>
                 <td style={{ fontWeight: 600 }}>{reg.username}</td>
-                <td><span style={{ color: 'var(--burgundy)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.78rem' }}>{reg.department}</span></td>
+                <td><span style={{ color: 'var(--burgundy)', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.88rem' }}>{reg.department}</span></td>
                 <td style={{ textAlign: 'right' }}>
                   <i className="fas fa-check-circle text-success"></i>
                 </td>

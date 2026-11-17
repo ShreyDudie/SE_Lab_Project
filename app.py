@@ -1,9 +1,11 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
 from models import db, User, Committee, Event, Registration, Message, Department, Tag, EventTag, EventResult
 from datetime import datetime
 import os
+import socket
+from itsdangerous import URLSafeSerializer, BadSignature
 from dotenv import load_dotenv
 
 load_dotenv() 
@@ -11,9 +13,20 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-key-for-dev')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///default.db')
 
+# Session cookie hardening (set SESSION_COOKIE_SECURE=1 when served over HTTPS)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', '0') == '1'
+
+# Behind a hosting platform's HTTPS proxy (Render sets RENDER=true), trust its forwarded headers
+if os.getenv('RENDER') or os.getenv('BEHIND_PROXY') == '1':
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
 CORS(app, supports_credentials=True)
 
 db.init_app(app)
+ticket_serializer = URLSafeSerializer(app.config['SECRET_KEY'], salt='vjti-ticket')
 login_manager = LoginManager(app)
 
 # Return 401 JSON instead of redirecting to login page
@@ -44,7 +57,104 @@ def get_leaderboard(committee_id=None):
                 
     return sorted(leaderboard.items(), key=lambda x: x[1], reverse=True)
 
+def event_with_reg(reg):
+    """Event dict plus the student's registration id/status (used for digital tickets)."""
+    d = reg.event.to_dict()
+    d['registration_id'] = reg.id
+    d['registration_status'] = reg.status
+    d['scanned_at'] = reg.scanned_at.isoformat() if reg.scanned_at else None
+    return d
+
+
+def ticket_payload(reg):
+    """Public-safe description of a ticket (what a gate scanner needs to see)."""
+    e = reg.event
+    return {
+        'registration_id': reg.id,
+        'event': {
+            'id': e.id, 'title': e.title, 'committee_id': e.committee_id,
+            'committee_name': e.committee.name if e.committee else None,
+            'date': e.date.isoformat(), 'start_time': e.start_time.strftime('%H:%M'),
+            'end_time': e.end_time.strftime('%H:%M'), 'details': e.details,
+        },
+        'attendee': reg.user.username if reg.user else None,
+        'department': reg.user.dept.name if reg.user and reg.user.dept else None,
+        'status': reg.status,
+        'scanned_at': reg.scanned_at.isoformat() if reg.scanned_at else None,
+    }
+
+
+def registration_from_token(token):
+    try:
+        reg_id = ticket_serializer.loads(token)
+    except BadSignature:
+        return None
+    return db.session.get(Registration, reg_id)
+
+
+def detect_lan_ip():
+    """Best-effort LAN address, so a phone on the same Wi-Fi can open the scan link."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('10.255.255.255', 1))  # no packet is actually sent
+        return s.getsockname()[0]
+    except OSError:
+        return None
+    finally:
+        s.close()
+
 # ─── Auth Endpoints ──────────────────────────────────────────────
+
+# ─── Digital ticket + QR scanning ────────────────────────────────
+
+@app.route('/api/network_info')
+def network_info():
+    return jsonify({'lan_ip': detect_lan_ip()})
+
+@app.route('/api/tickets/<int:reg_id>')
+@login_required
+def get_ticket(reg_id):
+    """The ticket owner fetches the signed token that goes into the QR code."""
+    reg = Registration.query.get_or_404(reg_id)
+    if reg.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    return jsonify({'token': ticket_serializer.dumps(reg.id), **ticket_payload(reg)})
+
+@app.route('/api/verify_ticket/<token>')
+def verify_ticket(token):
+    """Public: what the scan page shows. Does not change anything."""
+    reg = registration_from_token(token)
+    if not reg:
+        return jsonify({'error': 'This ticket could not be verified.'}), 404
+    return jsonify(ticket_payload(reg))
+
+@app.route('/api/verify_ticket/<token>/scan', methods=['POST'])
+def scan_ticket(token):
+    """Public: record the entry scan. A ticket is single-use: only the first scan admits."""
+    reg = registration_from_token(token)
+    if not reg:
+        return jsonify({'error': 'This ticket could not be verified.'}), 404
+    first = reg.scanned_at is None
+    if first:
+        reg.scanned_at = datetime.utcnow()
+        db.session.commit()
+    return jsonify({'first_scan': first, **ticket_payload(reg)})
+
+@app.route('/api/tickets/<int:reg_id>/reset_scan', methods=['POST'])
+@login_required
+def reset_ticket_scan(reg_id):
+    """Un-scan a ticket (owner, that committee's head, or admin): handy for re-running the scan demo."""
+    reg = Registration.query.get_or_404(reg_id)
+    allowed = (
+        reg.user_id == current_user.id
+        or current_user.role == 'admin'
+        or (current_user.role == 'head' and current_user.assigned_committee == reg.event.committee_id)
+    )
+    if not allowed:
+        return jsonify({'error': 'Unauthorized'}), 403
+    reg.scanned_at = None
+    db.session.commit()
+    return jsonify({'message': 'Ticket reset.'})
 
 @app.route('/api/me')
 def get_current_user():
@@ -104,6 +214,11 @@ def get_departments():
     depts = Department.query.order_by(Department.name).all()
     return jsonify({'departments': [d.to_dict() for d in depts]})
 
+@app.route('/api/public/committees')
+def public_committees():
+    """Committee id + name only, so the sign-up form can list them before login."""
+    return jsonify({'committees': [{'id': c.id, 'name': c.name} for c in Committee.query.order_by(Committee.name).all()]})
+
 @app.route('/api/index')
 @login_required
 def index():
@@ -126,14 +241,21 @@ def index():
     my_events = []
     if current_user.role == 'student':
         user_regs = Registration.query.filter_by(user_id=current_user.id).all()
-        my_events = [r.event.to_dict() for r in user_regs if not r.event.is_completed]
+        my_events = [event_with_reg(r) for r in user_regs if not r.event.is_completed]
 
     return jsonify({
         'committees': [c.to_dict() for c in committees],
         'upcoming': [e.to_dict() for e in upcoming],
         'recommended': [e.to_dict() for e in recommended],
         'past': [e.to_dict() for e in past],
-        'my_events': my_events
+        'my_events': my_events,
+        'leaderboard': [{'branch': b, 'score': s} for b, s in get_leaderboard()],
+        'stats': {
+            'total_events': Event.query.count(),
+            'completed_events': Event.query.filter_by(is_completed=True).count(),
+            'total_registrations': Registration.query.count(),
+            'participants': db.session.query(Registration.user_id).distinct().count()
+        }
     })
 
 @app.route('/api/committees')
@@ -159,10 +281,10 @@ def committee_home(id):
         registered_event_ids = [r.event_id for r in regs]
         # Get active events registered by this user specifically for this committee
         committee_regs = Registration.query.filter_by(user_id=current_user.id).join(Event).filter(Event.committee_id == id, Event.is_completed == False).all()
-        my_events = [r.event.to_dict() for r in committee_regs]
+        my_events = [event_with_reg(r) for r in committee_regs]
     
     if current_user.role == 'head':
-        participants = Registration.query.join(Event).filter(Event.committee_id == id).all()
+        participants = Registration.query.join(Event).filter(Event.committee_id == id).order_by(Registration.id.desc()).all()
 
     return jsonify({
         'committee': committee.to_dict(),
@@ -183,15 +305,34 @@ def dashboard():
 
     if current_user.role == 'student':
         user_regs = Registration.query.filter_by(user_id=current_user.id).all()
-        my_events = [r.event.to_dict() for r in user_regs if not r.event.is_completed]
+        my_events = [event_with_reg(r) for r in user_regs if not r.event.is_completed]
         messages = [m.to_dict() for m in Message.query.filter_by(user_id=current_user.id).order_by(Message.timestamp.desc()).all()]
         past = Event.query.filter_by(is_completed=True).order_by(Event.date.desc()).limit(4).all()
-        
+
+        # Participation history + department standing (additive, used for the student's stats)
+        history = []
+        for r in sorted([r for r in user_regs if r.event.is_completed], key=lambda r: r.event.date, reverse=True):
+            item = r.event.to_dict()
+            item['status'] = r.status
+            item['rating'] = r.rating
+            history.append(item)
+        board = get_leaderboard()
+        dept_name = current_user.dept.name if current_user.dept else None
+        dept_standing = None
+        if dept_name:
+            for idx, (b, sc) in enumerate(board):
+                if b == dept_name:
+                    dept_standing = {'department': b, 'rank': idx + 1, 'score': sc, 'total': len(board)}
+                    break
+
         return jsonify({
             'role': 'student',
             'my_events': my_events,
             'messages': messages,
-            'past': [e.to_dict() for e in past]
+            'past': [e.to_dict() for e in past],
+            'history': history,
+            'dept_standing': dept_standing,
+            'department': dept_name
         })
 
     elif current_user.role == 'head':
@@ -200,11 +341,22 @@ def dashboard():
         active_events = Event.query.filter_by(committee_id=committee.id, is_completed=False).order_by(Event.date.asc()).all()
         past_events = Event.query.filter_by(committee_id=committee.id, is_completed=True).order_by(Event.date.desc()).all()
         
+        committee_regs = Registration.query.join(Event).filter(Event.committee_id == committee.id).all()
+        attended = sum(1 for r in committee_regs if r.status == 'Attended')
+        past_regs = [r for r in committee_regs if r.event.is_completed]
+        past_attended = sum(1 for r in past_regs if r.status == 'Attended')
+
         return jsonify({
             'role': 'head',
             'committee': committee.to_dict(),
             'active_events': [e.to_dict() for e in active_events],
-            'past_events': [e.to_dict() for e in past_events]
+            'past_events': [e.to_dict() for e in past_events],
+            'stats': {
+                'total_registrations': len(committee_regs),
+                'attended': attended,
+                'attendance_rate': round(past_attended / len(past_regs) * 100, 1) if past_regs else 0
+            },
+            'leaderboard': [{'branch': b, 'score': s} for b, s in get_leaderboard(committee.id)]
         })
 
     elif current_user.role == 'admin':
@@ -216,7 +368,8 @@ def dashboard():
             'role': 'admin',
             'all_events': [e.to_dict() for e in all_events],
             'pending_heads': [u.to_dict() for u in pending_heads],
-            'committees': [c.to_dict() for c in committees]
+            'committees': [c.to_dict() for c in committees],
+            'leaderboard': [{'branch': b, 'score': s} for b, s in get_leaderboard()]
         })
 
 # ─── Action Endpoints ────────────────────────────────────────────
@@ -246,6 +399,8 @@ def register_event(event_id):
 def unregister(reg_id):
     reg = Registration.query.get_or_404(reg_id)
     if reg.user_id == current_user.id:
+        if reg.scanned_at:
+            return jsonify({'error': 'This ticket has already been scanned for entry and can no longer be cancelled.'}), 400
         db.session.delete(reg)
         db.session.commit()
         return jsonify({'message': 'Registration cancelled.'})
@@ -412,7 +567,33 @@ def leaderboard_by_committee(committee_id):
     lb = get_leaderboard(committee_id)
     return jsonify({'leaderboard': [{'branch': b, 'score': s} for b, s in lb]})
 
-if __name__ == '__main__':
+# ─── Production: serve the built React app from the same server ─────
+
+CLIENT_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client', 'dist')
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    """Static files from client/dist, falling back to index.html so React Router can handle the URL."""
+    if path.startswith('api/'):
+        return jsonify({'error': 'Not found'}), 404
+    if path and os.path.isfile(os.path.join(CLIENT_DIST, path)):
+        return send_from_directory(CLIENT_DIST, path)
+    if os.path.isfile(os.path.join(CLIENT_DIST, 'index.html')):
+        return send_from_directory(CLIENT_DIST, 'index.html')
+    return jsonify({'message': 'VJTI Committee Manager API is running. Build the client (npm run build in /client) to serve the website from here.'})
+
+
+def ensure_schema():
+    """Create tables and add columns introduced after the first release (SQLite has no auto-migrate)."""
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+        cols = [row[1] for row in db.session.execute(db.text("PRAGMA table_info(registration)"))]
+        if cols and 'scanned_at' not in cols:
+            db.session.execute(db.text("ALTER TABLE registration ADD COLUMN scanned_at DATETIME"))
+            db.session.commit()
+
+ensure_schema()
+
+if __name__ == '__main__':
+    app.run(debug=os.getenv('FLASK_DEBUG', '1') == '1')

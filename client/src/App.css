@@ -162,7 +162,7 @@ img { max-width: 100%; }
 .sidebar-toggle {
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.8);
   width: 34px;
   height: 34px;
   border-radius: var(--radius-sm);
@@ -170,7 +170,7 @@ img { max-width: 100%; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   transition: all 0.15s;
 }
 
@@ -200,7 +200,7 @@ img { max-width: 100%; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 900;
   color: var(--navy-dark);
 }
@@ -220,23 +220,23 @@ img { max-width: 100%; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   font-weight: 800;
   color: var(--gold-light);
 }
 
 .navbar-username {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .navbar-logout {
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.4) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
   cursor: pointer;
   background: none;
   border: none;
@@ -302,7 +302,7 @@ img { max-width: 100%; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 800;
   flex-shrink: 0;
 }
@@ -312,7 +312,7 @@ img { max-width: 100%; }
 }
 
 .sidebar-user-name {
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--navy);
   white-space: nowrap;
@@ -321,7 +321,7 @@ img { max-width: 100%; }
 }
 
 .sidebar-user-role {
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -343,7 +343,7 @@ img { max-width: 100%; }
 }
 
 .sidebar-section-label {
-  font-size: 0.62rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -360,7 +360,7 @@ img { max-width: 100%; }
   background: none;
   border: none;
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.93rem;
   font-weight: 600;
   color: var(--text-light);
   cursor: pointer;
@@ -378,7 +378,7 @@ img { max-width: 100%; }
 .sidebar-link i {
   width: 18px;
   text-align: center;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   opacity: 0.6;
 }
 
@@ -394,7 +394,7 @@ img { max-width: 100%; }
 }
 
 .sidebar-footer p {
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -402,7 +402,7 @@ img { max-width: 100%; }
 }
 
 .sidebar-footer .sidebar-footer-sub {
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   font-weight: 500;
   text-transform: none;
   letter-spacing: 0;
@@ -413,7 +413,7 @@ img { max-width: 100%; }
 /* â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .footer {
   background: var(--navy-dark);
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.8);
   padding: 2rem 1.5rem;
   margin-top: auto;
   border-top: 2px solid var(--gold-muted);
@@ -433,7 +433,7 @@ img { max-width: 100%; }
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 1rem;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .footer-brand span { color: var(--gold); }
@@ -444,8 +444,8 @@ img { max-width: 100%; }
 }
 
 .footer-links a {
-  color: rgba(255,255,255,0.4);
-  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.84rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -459,7 +459,7 @@ img { max-width: 100%; }
   margin-top: 1.25rem;
   padding-top: 1.25rem;
   border-top: 1px solid rgba(255,255,255,0.08);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -489,7 +489,7 @@ img { max-width: 100%; }
 }
 
 .card-label {
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -511,7 +511,7 @@ img { max-width: 100%; }
   gap: 0.4rem;
   padding: 0.6rem 1.25rem;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 700;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
@@ -576,7 +576,7 @@ img { max-width: 100%; }
 
 .btn-sm {
   padding: 0.35rem 0.8rem;
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .btn-block { width: 100%; }
@@ -593,7 +593,7 @@ img { max-width: 100%; }
 
 .form-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -607,7 +607,7 @@ img { max-width: 100%; }
   width: 100%;
   padding: 0.6rem 0.85rem;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   color: var(--text);
   background: var(--white);
   border: 1px solid var(--border);
@@ -650,7 +650,7 @@ table {
 
 thead th {
   background: var(--cream-dark);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -662,7 +662,7 @@ thead th {
 
 tbody td {
   padding: 0.7rem 1rem;
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -680,7 +680,7 @@ tbody tr:hover {
   align-items: center;
   gap: 0.3rem;
   padding: 0.2rem 0.6rem;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -737,7 +737,7 @@ tbody tr:hover {
 .flash-msg {
   padding: 0.75rem 1rem;
   border-radius: var(--radius);
-  font-size: 0.82rem;
+  font-size: 0.93rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -838,7 +838,7 @@ tbody tr:hover {
 }
 
 .section-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -871,7 +871,7 @@ tbody tr:hover {
 }
 
 .stat-card .stat-label {
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -887,7 +887,7 @@ tbody tr:hover {
 }
 
 .page-header .page-label {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -902,7 +902,7 @@ tbody tr:hover {
 
 .page-header .page-sub {
   color: var(--text-light);
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   margin-top: 0.25rem;
 }
 
@@ -915,7 +915,7 @@ tbody tr:hover {
 }
 
 .leaderboard-panel .panel-title {
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -937,13 +937,13 @@ tbody tr:hover {
 .leaderboard-row:last-child { border-bottom: none; }
 
 .leaderboard-branch {
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .leaderboard-score {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 700;
   padding: 0.2rem 0.6rem;
   background: rgba(255,255,255,0.08);
@@ -971,7 +971,7 @@ tbody tr:hover {
 }
 
 .empty-state p {
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   font-weight: 600;
 }
 
@@ -1004,7 +1004,7 @@ tbody tr:hover {
 
 .login-card .login-sub {
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
@@ -1024,7 +1024,7 @@ tbody tr:hover {
   background: transparent;
   border: none;
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1045,7 +1045,7 @@ tbody tr:hover {
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border-light);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1081,7 +1081,7 @@ tbody tr:hover {
 .committee-hero .hero-info .hero-badge {
   display: inline-block;
   padding: 0.2rem 0.6rem;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1132,7 +1132,7 @@ tbody tr:hover {
 }
 
 .event-mgmt-info .event-meta {
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -1154,14 +1154,14 @@ tbody tr:hover {
 
 .message-card h4 {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   font-weight: 700;
   color: var(--navy);
   margin-bottom: 0.2rem;
 }
 
 .message-card p {
-  font-size: 0.82rem;
+  font-size: 0.93rem;
   color: var(--text-light);
 }
 
@@ -1289,7 +1289,7 @@ tbody tr:hover {
 }
 
 .hero-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -1298,7 +1298,7 @@ tbody tr:hover {
 }
 
 .hero-about {
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   line-height: 1.7;
   max-width: 600px;
   opacity: 0.8;
@@ -1308,7 +1308,7 @@ tbody tr:hover {
 .hero-badge-themed {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1679,7 +1679,7 @@ tbody tr:hover {
 }
 
 .themed-card .themed-card-date {
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: var(--committee-primary);
   text-transform: uppercase;
@@ -1687,12 +1687,12 @@ tbody tr:hover {
 }
 
 .themed-card .themed-card-time {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   opacity: 0.6;
 }
 
 .themed-card .themed-card-details {
-  font-size: 0.82rem;
+  font-size: 0.93rem;
   line-height: 1.6;
   opacity: 0.7;
   margin: 0.5rem 0;
@@ -1707,7 +1707,7 @@ tbody tr:hover {
 
 .themed-card .themed-tag {
   padding: 0.15rem 0.5rem;
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1723,7 +1723,7 @@ tbody tr:hover {
   color: #fff;
   border: none;
   padding: 0.5rem 1.2rem;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1779,7 +1779,7 @@ tbody tr:hover {
 
 .about-card h3 {
   color: var(--committee-primary);
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -1790,7 +1790,7 @@ tbody tr:hover {
 }
 
 .about-card p {
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   line-height: 1.8;
   opacity: 0.85;
 }
@@ -1805,13 +1805,13 @@ tbody tr:hover {
 
 .category-tab {
   padding: 0.35rem 0.85rem;
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.8);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
@@ -1833,7 +1833,7 @@ tbody tr:hover {
   background: rgba(0,0,0,0.3);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-sm);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .countdown-themed {
@@ -1844,7 +1844,7 @@ tbody tr:hover {
 .countdown-label {
   font-weight: 600;
   opacity: 0.7;
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -1862,13 +1862,13 @@ tbody tr:hover {
 
 .countdown-value {
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.93rem;
   color: var(--committee-primary, var(--gold));
   font-family: var(--committee-font, var(--font-body));
 }
 
 .countdown-unit {
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   font-weight: 600;
   opacity: 0.5;
   margin-right: 0.15rem;
@@ -1899,7 +1899,7 @@ tbody tr:hover {
 
 .search-icon {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   margin-right: 0.25rem;
 }
 
@@ -1909,7 +1909,7 @@ tbody tr:hover {
   border: none;
   outline: none;
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   color: var(--text);
   background: transparent;
   padding: 0.3rem 0;
@@ -1924,7 +1924,7 @@ tbody tr:hover {
   align-items: center;
   gap: 0.3rem;
   padding: 0.2rem 0.6rem;
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   background: var(--navy);
   color: #fff;
@@ -1938,7 +1938,7 @@ tbody tr:hover {
 }
 
 .search-tag i {
-  font-size: 0.6rem;
+  font-size: 0.8rem;
 }
 
 .search-suggestions {
@@ -1956,7 +1956,7 @@ tbody tr:hover {
 }
 
 .search-suggestions-label {
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1976,7 +1976,7 @@ tbody tr:hover {
   align-items: center;
   gap: 0.3rem;
   padding: 0.25rem 0.65rem;
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   border: 1px solid var(--border);
   background: var(--cream);
@@ -1994,7 +1994,7 @@ tbody tr:hover {
 }
 
 .search-suggestion-pill i {
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   opacity: 0.5;
 }
 
@@ -2021,7 +2021,7 @@ tbody tr:hover {
 
 .techno-filter-label {
   display: block;
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -2038,11 +2038,11 @@ tbody tr:hover {
 
 .techno-pill {
   padding: 0.35rem 0.75rem;
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.2);
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.8);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
@@ -2062,8 +2062,8 @@ tbody tr:hover {
 }
 
 .techno-results-count {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.93rem;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 1rem;
   font-family: 'Orbitron', monospace;
 }
@@ -2129,15 +2129,15 @@ tbody tr:hover {
 
 .techno-card-date {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: #60A5FA;
   font-family: 'Orbitron', monospace;
 }
 
 .techno-card-time {
-  font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .techno-card-title {
@@ -2150,8 +2150,8 @@ tbody tr:hover {
 }
 
 .techno-card-desc {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.93rem;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
   margin-bottom: 0.75rem;
 }
@@ -2165,7 +2165,7 @@ tbody tr:hover {
 
 .techno-tag {
   padding: 0.15rem 0.5rem;
-  font-size: 0.62rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -2175,8 +2175,8 @@ tbody tr:hover {
 }
 
 .techno-card-stats {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 0.75rem;
 }
 
@@ -2195,7 +2195,7 @@ tbody tr:hover {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -2219,7 +2219,7 @@ tbody tr:hover {
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 700;
   background: rgba(34, 197, 94, 0.15);
   color: #4ADE80;
@@ -2233,7 +2233,7 @@ tbody tr:hover {
   background: rgba(59, 130, 246, 0.03);
   border: 1px dashed rgba(59, 130, 246, 0.15);
   border-radius: var(--radius-lg);
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .techno-empty-icon {
@@ -2265,8 +2265,8 @@ tbody tr:hover {
 }
 
 .team-section-desc {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.93rem;
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 0.25rem;
 }
 
@@ -2290,7 +2290,7 @@ tbody tr:hover {
 
 .team-form-group label {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -2309,7 +2309,7 @@ tbody tr:hover {
   border-radius: 4px;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   transition: border-color 0.2s;
 }
 
@@ -2359,7 +2359,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 800;
   color: #fff;
   flex-shrink: 0;
@@ -2373,13 +2373,13 @@ tbody tr:hover {
 }
 
 .team-card-creator {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .team-card-desc {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.93rem;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.5;
   margin-bottom: 0.75rem;
 }
@@ -2393,7 +2393,7 @@ tbody tr:hover {
 
 .team-skill-tag {
   padding: 0.15rem 0.5rem;
-  font-size: 0.62rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -2422,7 +2422,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.55rem;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
@@ -2438,8 +2438,8 @@ tbody tr:hover {
 }
 
 .team-slots-text {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.8);
   font-family: 'Orbitron', monospace;
 }
 
@@ -2452,7 +2452,7 @@ tbody tr:hover {
   align-items: center;
   gap: 0.4rem;
   padding: 0.45rem 0.9rem;
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.3);
@@ -2468,9 +2468,9 @@ tbody tr:hover {
 }
 
 .team-full-badge {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
   font-style: italic;
 }
 
@@ -2518,7 +2518,7 @@ tbody tr:hover {
 }
 
 .analytics-label {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -2547,7 +2547,7 @@ tbody tr:hover {
 }
 
 .bar-label {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 600;
   width: 120px;
   flex-shrink: 0;
@@ -2570,7 +2570,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   padding-left: 0.5rem;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #fff;
   min-width: fit-content;
@@ -2602,7 +2602,7 @@ tbody tr:hover {
 }
 
 .index-hero .page-sub {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   position: relative;
   max-width: 500px;
 }
@@ -2658,7 +2658,7 @@ tbody tr:hover {
 }
 
 .committee-poster-desc {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   opacity: 0.65;
   line-height: 1.5;
 }
@@ -2668,7 +2668,7 @@ tbody tr:hover {
   align-items: center;
   gap: 0.4rem;
   margin-top: 0.75rem;
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -2803,7 +2803,7 @@ tbody tr:hover {
 
   .bar-label {
     width: 80px;
-    font-size: 0.7rem;
+    font-size: 0.84rem;
   }
 
   .category-tabs {
@@ -2856,7 +2856,7 @@ tbody tr:hover {
 }
 
 .stat-label, .analytics-label {
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -2891,7 +2891,7 @@ tbody tr:hover {
 
 .bar-label {
   width: 100px;
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   font-weight: 700;
   color: var(--navy);
   text-transform: uppercase;
@@ -2912,7 +2912,7 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   padding-left: 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;

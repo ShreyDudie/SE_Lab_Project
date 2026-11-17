@@ -28,7 +28,7 @@ export default function EventTrailerModal({ show, onClose, eventTitle }) {
               <i className="fas fa-play" style={{ fontSize: '1.5rem', marginLeft: '4px' }}></i>
             </div>
             <h3 style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{eventTitle || 'Event'} Official Trailer</h3>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }}>Mock Video Source</p>
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.88rem' }}>Mock Video Source</p>
           </div>
         </div>
       </div>

@@ -1,0 +1,168 @@
+/* ==========================================================================
+   Side decorations: fills the empty left/right margins on wide screens.
+   Variant is picked from <body data-theme="..."> (set by committee pages);
+   everything else shows the default institutional look.
+   ========================================================================== */
+
+.side-decor { display: none; }
+
+@media (min-width: 1320px) {
+  .side-decor { display: block; }
+}
+@media print { .side-decor { display: none !important; } }
+
+.sd-side {
+  /* width of the empty margin beside the 1100px content column */
+  --sd-w: max(0px, calc((100vw - var(--max-width, 1100px)) / 2 - 16px));
+  position: fixed; top: 59px; bottom: 0; width: var(--sd-w);
+  overflow: hidden; z-index: -1; pointer-events: none;
+}
+.sd-left { left: 0; }
+.sd-right { right: 0; }
+
+.sd-layer { display: none; position: absolute; inset: 0; }
+.sd-default { display: block; }
+body[data-theme] .sd-default { display: none; }
+body[data-theme="technovanza"] .sd-technovanza,
+body[data-theme="coc"] .sd-coc,
+body[data-theme="enthusia"] .sd-enthusia,
+body[data-theme="pratibimb"] .sd-pratibimb { display: block; }
+
+/* shared pieces */
+.sd-vtext {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  writing-mode: vertical-rl; white-space: nowrap; text-transform: uppercase;
+  font-size: 0.95rem; font-weight: 700; letter-spacing: 0.42em;
+}
+.sd-left .sd-vtext { transform: translate(-50%, -50%) rotate(180deg); }
+.sd-line { position: absolute; top: 5%; bottom: 5%; width: 2px; border-radius: 2px; }
+.sd-left .sd-line { right: 10px; }
+.sd-right .sd-line { left: 10px; }
+.sd-bigicon { position: absolute; left: 50%; bottom: 7%; font-size: calc(var(--sd-w) * 0.62); transform: translateX(-50%) rotate(-12deg); }
+.sd-right .sd-bigicon { transform: translateX(-50%) rotate(12deg); }
+
+/* ---- Default: cream institutional pages ---------------------------------------- */
+.sd-dots {
+  position: absolute; inset: 0;
+  background: radial-gradient(rgba(27, 42, 74, 0.2) 1.3px, transparent 1.6px) 0 0 / 22px 22px;
+}
+.sd-left .sd-dots { -webkit-mask-image: linear-gradient(to right, #000 5%, transparent 95%); mask-image: linear-gradient(to right, #000 5%, transparent 95%); }
+.sd-right .sd-dots { -webkit-mask-image: linear-gradient(to left, #000 5%, transparent 95%); mask-image: linear-gradient(to left, #000 5%, transparent 95%); }
+.sd-default .sd-line { background: linear-gradient(180deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent); opacity: 0.55; }
+.sd-default .sd-vtext { font-family: var(--font-heading); color: rgba(27, 42, 74, 0.5); }
+.sd-orb { position: absolute; border-radius: 50%; filter: blur(34px); opacity: 0.35; animation: sd-float 14s ease-in-out infinite; }
+.sd-orb.o1 { width: 130px; height: 130px; background: var(--gold); top: 14%; left: 8%; }
+.sd-orb.o2 { width: 110px; height: 110px; background: var(--burgundy); bottom: 26%; right: 6%; animation-delay: -6s; opacity: 0.22; }
+@keyframes sd-float { 50% { transform: translate(14px, -24px) scale(1.12); } }
+.sd-icons { position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 1rem; }
+.sd-icons i {
+  width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+  color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); opacity: 0.8;
+}
+
+/* ---- Technovanza: neon grid ---------------------------------------------------------- */
+.sd-grid {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(rgba(147, 197, 253, 0.28) 1px, transparent 1px) 0 0 / 38px 38px,
+    linear-gradient(90deg, rgba(147, 197, 253, 0.28) 1px, transparent 1px) 0 0 / 38px 38px;
+}
+.sd-left .sd-grid { -webkit-mask-image: linear-gradient(to right, #000 10%, transparent 100%); mask-image: linear-gradient(to right, #000 10%, transparent 100%); }
+.sd-right .sd-grid { -webkit-mask-image: linear-gradient(to left, #000 10%, transparent 100%); mask-image: linear-gradient(to left, #000 10%, transparent 100%); }
+.sd-technovanza .sd-line { background: linear-gradient(180deg, transparent, #93C5FD 25%, #60A5FA 75%, transparent); box-shadow: 0 0 14px #3B82F6; }
+.sd-scan { position: absolute; left: 0; right: 0; height: 110px; top: -110px; background: linear-gradient(transparent, rgba(147, 197, 253, 0.32), transparent); animation: sd-scan 7s linear infinite; }
+.sd-right .sd-scan { animation-delay: -3.5s; }
+@keyframes sd-scan { to { top: 100%; } }
+.sd-node { position: absolute; width: 10px; height: 10px; border: 2px solid #93C5FD; background: #0F172A; box-shadow: 0 0 10px #3B82F6; animation: sd-pulse 2.6s ease-in-out infinite; }
+.sd-left .sd-node { right: 6px; }
+.sd-right .sd-node { left: 6px; }
+.sd-node.n1 { top: 22%; } .sd-node.n2 { top: 52%; animation-delay: -0.9s; } .sd-node.n3 { top: 80%; animation-delay: -1.7s; }
+@keyframes sd-pulse { 50% { opacity: 0.35; transform: scale(0.8); } }
+.sd-technovanza .sd-vtext { font-family: 'Orbitron', monospace; color: rgba(191, 219, 254, 0.8); text-shadow: 0 0 12px rgba(59, 130, 246, 0.8); }
+
+/* ---- COC: code rain ---------------------------------------------------------------------- */
+.sd-rain { position: absolute; inset: 0; overflow: hidden; }
+.sd-left .sd-rain { -webkit-mask-image: linear-gradient(to right, #000 20%, transparent 100%); mask-image: linear-gradient(to right, #000 20%, transparent 100%); }
+.sd-right .sd-rain { -webkit-mask-image: linear-gradient(to left, #000 20%, transparent 100%); mask-image: linear-gradient(to left, #000 20%, transparent 100%); }
+.sd-rain span {
+  position: absolute; top: 0; writing-mode: vertical-rl; font-family: 'Fira Code', Consolas, monospace; font-size: 0.95rem; letter-spacing: 0.2em;
+  color: rgba(74, 222, 128, 0.7); text-shadow: 0 0 8px rgba(74, 222, 128, 0.7); animation: sd-rain linear infinite; opacity: 0; white-space: nowrap;
+}
+@keyframes sd-rain { 0% { transform: translateY(-110%); opacity: 0; } 12% { opacity: 0.85; } 85% { opacity: 0.6; } 100% { transform: translateY(100vh); opacity: 0; } }
+.sd-coc .sd-line { background: linear-gradient(180deg, transparent, #4ADE80 30%, #16A34A 70%, transparent); box-shadow: 0 0 12px rgba(74, 222, 128, 0.7); }
+.sd-coc .sd-vtext { font-family: 'Fira Code', Consolas, monospace; color: rgba(187, 247, 208, 0.9); text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 10px rgba(74, 222, 128, 0.7); font-size: 0.9rem; letter-spacing: 0.3em; }
+
+/* ---- Enthusia: stadium stripes ------------------------------------------------------------- */
+.sd-stripes { position: absolute; inset: 0; background: repeating-linear-gradient(115deg, rgba(251, 146, 60, 0.28) 0 16px, transparent 16px 42px); }
+.sd-left .sd-stripes { -webkit-mask-image: linear-gradient(to right, #000 10%, transparent 100%); mask-image: linear-gradient(to right, #000 10%, transparent 100%); }
+.sd-right .sd-stripes { -webkit-mask-image: linear-gradient(to left, #000 10%, transparent 100%); mask-image: linear-gradient(to left, #000 10%, transparent 100%); }
+.sd-enthusia .sd-line { background: linear-gradient(180deg, transparent, #FCD34D 30%, #F97316 70%, transparent); box-shadow: 0 0 14px rgba(252, 211, 77, 0.6); }
+.sd-enthusia .sd-bigicon { color: rgba(252, 211, 77, 0.28); text-shadow: 0 0 24px rgba(249, 115, 22, 0.5); }
+.sd-enthusia .sd-vtext { font-family: 'Oswald', Impact, sans-serif; color: rgba(255, 237, 213, 0.9); text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); letter-spacing: 0.34em; }
+
+/* ---- Pratibimb: film strip + curtain ------------------------------------------------------------ */
+.sd-curtain { position: absolute; inset: 0; }
+.sd-left .sd-curtain { background: linear-gradient(to right, rgba(220, 38, 38, 0.5), rgba(220, 38, 38, 0.08) 70%, transparent); }
+.sd-right .sd-curtain { background: linear-gradient(to left, rgba(220, 38, 38, 0.5), rgba(220, 38, 38, 0.08) 70%, transparent); }
+.sd-film {
+  position: absolute; top: 0; bottom: 0; width: 30px;
+  background:
+    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.42) 0 14px, transparent 14px 34px) 50% 0 / 12px 100% no-repeat,
+    rgba(0, 0, 0, 0.5);
+}
+.sd-left .sd-film { left: 0; border-right: 1px solid rgba(255, 255, 255, 0.18); }
+.sd-right .sd-film { right: 0; border-left: 1px solid rgba(255, 255, 255, 0.18); }
+.sd-pratibimb .sd-line { background: linear-gradient(180deg, transparent, #F87171 30%, #DC2626 70%, transparent); box-shadow: 0 0 14px rgba(239, 68, 68, 0.7); }
+.sd-pratibimb .sd-bigicon { color: rgba(254, 202, 202, 0.2); }
+.sd-pratibimb .sd-vtext { font-family: 'Bebas Neue', Impact, sans-serif; font-size: 1.25rem; letter-spacing: 0.3em; color: rgba(254, 226, 226, 0.92); }
+.sd-pratibimb .sd-vtext.glitch { text-shadow: -2px 0 rgba(34, 211, 238, 0.75), 2px 0 rgba(232, 121, 249, 0.75), 0 0 14px rgba(0, 0, 0, 0.8); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-orb, .sd-scan, .sd-node, .sd-rain span { animation: none !important; }
+  .sd-rain span { opacity: 0.5; transform: translateY(8vh); }
+}
+
+/* ==========================================================================
+   Sign-in / register page fillers (left: features, right: committees)
+   ========================================================================== */
+.auth-side { display: none; }
+
+@media (min-width: 1200px) {
+  .auth-side {
+    display: flex; flex-direction: column; gap: 1rem; position: absolute; top: 50%; transform: translateY(-50%);
+    width: min(330px, calc((100% - 420px) / 2 - 3rem)); z-index: 1; pointer-events: none;
+  }
+  .auth-side-left { left: 3rem; }
+  .auth-side-right { right: 3rem; }
+}
+
+.auth-eyebrow {
+  font-size: 0.82rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light);
+}
+.auth-eyebrow i { margin-right: 8px; }
+.auth-side-title { font-family: var(--font-heading); font-size: 2.1rem; line-height: 1.2; color: #fff; margin: 0.2rem 0 0.4rem; }
+
+.auth-features { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; margin: 0; padding: 0; }
+.auth-features li { display: flex; gap: 0.85rem; align-items: flex-start; }
+.auth-feature-icon {
+  width: 42px; height: 42px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  color: var(--gold-light); background: rgba(197, 151, 59, 0.14); border: 1px solid rgba(197, 151, 59, 0.4);
+}
+.auth-features strong { display: block; color: #fff; font-size: 1rem; }
+.auth-features li span:not(.auth-feature-icon) { display: block; font-size: 0.9rem; line-height: 1.5; color: rgba(255, 255, 255, 0.8); }
+
+.auth-committees { display: flex; flex-direction: column; gap: 0.8rem; }
+.auth-committee {
+  --accent: #C5973B; display: flex; align-items: center; gap: 0.9rem; padding: 0.8rem 1rem; border-radius: 14px;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 24%, rgba(255, 255, 255, 0.04)), rgba(255, 255, 255, 0.04));
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25); animation: auth-float 7s ease-in-out infinite;
+}
+.auth-committee:nth-child(2) { animation-delay: -1.7s; }
+.auth-committee:nth-child(3) { animation-delay: -3.4s; }
+.auth-committee:nth-child(4) { animation-delay: -5.1s; }
+@keyframes auth-float { 50% { transform: translateY(-6px); } }
+.auth-committee img, .auth-committee svg { border-radius: 10px; flex-shrink: 0; }
+.auth-committee strong { display: block; color: #fff; font-size: 1.05rem; }
+.auth-committee span { display: block; font-size: 0.88rem; color: rgba(255, 255, 255, 0.78); }
+@media (prefers-reduced-motion: reduce) { .auth-committee { animation: none; } }

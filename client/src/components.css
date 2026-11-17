@@ -1,0 +1,242 @@
+/* ==========================================================================
+   VJTI Committee Manager - modern UI components
+   Scrollbars, scroll progress, tickets, notification bell, toasts, dialogs.
+   Loaded after polish.css. Additive only.
+   ========================================================================== */
+
+/* ---- Scrollbars ------------------------------------------------------------
+   Gold thumb on a soft track: readable on the cream pages AND on the dark
+   committee universes. Chromium/Safari use the pseudo-elements; Firefox gets
+   the standard properties (guarded so Chromium does not ignore the pseudos). */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: rgba(120, 120, 130, 0.12); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #D4AA5A, #A87E2A);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  min-height: 40px;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #E5BE6F, #B8892D); background-clip: padding-box; border: 3px solid transparent; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: #C5973B rgba(120, 120, 130, 0.15); }
+}
+
+/* Slimmer bars inside panels and lists */
+.scroll-area, .table-scroll, .notif-list, .sidebar, .modal, .ticket-modal, .event-landing-modal {
+  scrollbar-gutter: stable;
+}
+.scroll-area::-webkit-scrollbar, .table-scroll::-webkit-scrollbar,
+.notif-list::-webkit-scrollbar, .sidebar::-webkit-scrollbar,
+.modal::-webkit-scrollbar, .ticket-modal::-webkit-scrollbar, .event-landing-modal::-webkit-scrollbar {
+  width: 8px; height: 8px;
+}
+.sidebar::-webkit-scrollbar-track, .event-landing-modal::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.06); }
+
+/* Scrollable regions */
+.scroll-area { max-height: 440px; overflow-y: auto; padding-right: 0.5rem; overscroll-behavior: auto; }
+.scroll-area.history-list { padding-right: 0.75rem; }
+
+/* Long tables: fixed height, sticky header */
+.table-wrapper.table-scroll { max-height: 560px; overflow: auto; overscroll-behavior: auto; }
+.table-scroll thead th { position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 var(--border); }
+
+/* Soft fade hints that more content exists below */
+.scroll-area, .table-scroll {
+  background:
+    linear-gradient(var(--cream, #FAF7F0) 30%, transparent) top / 100% 18px no-repeat local,
+    linear-gradient(transparent, rgba(27, 42, 74, 0.12)) bottom / 100% 14px no-repeat scroll;
+}
+.table-wrapper.table-scroll { background-color: var(--white); }
+.panel-card.scroll-area { background-color: var(--white); }
+
+/* ---- Scroll progress bar ------------------------------------------------------ */
+.scroll-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 1200; pointer-events: none; }
+.scroll-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #C5973B, #F2D58A, #C5973B);
+  box-shadow: 0 0 10px rgba(197, 151, 59, 0.7);
+  transition: width 0.08s linear;
+}
+
+/* ---- Toasts: close button + countdown bar ------------------------------------------ */
+.flash-container { z-index: 1300; }
+.flash-msg { position: relative; overflow: hidden; }
+.flash-text { flex: 1; line-height: 1.35; }
+.flash-close {
+  background: none; border: none; cursor: pointer; color: inherit; opacity: 0.55;
+  width: 24px; height: 24px; border-radius: 6px; font-size: 0.84rem; flex-shrink: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.flash-close:hover { opacity: 1; background: rgba(0, 0, 0, 0.08); }
+.flash-progress {
+  position: absolute; left: 0; bottom: 0; height: 3px; width: 100%;
+  background: currentColor; opacity: 0.35; transform-origin: left;
+  animation: flash-shrink 4s linear forwards;
+}
+@keyframes flash-shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* ---- Confirm dialog -------------------------------------------------------------------- */
+.confirm-backdrop { backdrop-filter: blur(4px); }
+.confirm-dialog {
+  width: 100%; max-width: 420px; text-align: center; padding: 1.75rem 1.5rem 1.5rem;
+  background: var(--white); border-radius: 18px; border: 1px solid var(--border-light);
+  box-shadow: 0 24px 60px rgba(15, 27, 51, 0.4); animation: confirm-pop 0.18s ease-out;
+}
+@keyframes confirm-pop { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+.confirm-icon {
+  width: 56px; height: 56px; margin: 0 auto 0.9rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+  color: var(--info); background: var(--info-bg);
+}
+.confirm-icon.danger { color: var(--danger); background: var(--danger-bg); }
+.confirm-title { font-size: 1.2rem; margin-bottom: 0.4rem; }
+.confirm-message { color: var(--text-light); font-size: 0.98rem; line-height: 1.55; }
+.confirm-actions { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.4rem; flex-wrap: wrap; }
+
+/* ---- Notification bell ------------------------------------------------------------------- */
+.notif-wrap { position: relative; }
+.notif-btn {
+  position: relative; width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  color: rgba(255, 255, 255, 0.8); background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15); font-size: 0.93rem;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+.notif-btn:hover, .notif-btn[aria-expanded="true"] { background: rgba(255, 255, 255, 0.18); color: var(--gold-light); }
+.notif-btn:active { transform: scale(0.94); }
+.notif-badge {
+  position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: 999px; background: #E11D48; color: #fff; font-size: 0.8rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; border: 2px solid var(--navy);
+  font-family: var(--font-body);
+}
+.notif-panel {
+  position: absolute; right: 0; top: calc(100% + 12px); width: 340px; max-width: 92vw; z-index: 400;
+  background: var(--white); color: var(--text); border-radius: 16px; overflow: hidden;
+  border: 1px solid var(--border-light); box-shadow: 0 24px 50px rgba(15, 27, 51, 0.35);
+  animation: confirm-pop 0.16s ease-out; text-align: left;
+}
+.notif-panel::before {
+  content: ''; position: absolute; top: -6px; right: 12px; width: 12px; height: 12px;
+  background: var(--cream-dark); transform: rotate(45deg); border-left: 1px solid var(--border-light); border-top: 1px solid var(--border-light);
+}
+.notif-head {
+  position: relative; display: flex; justify-content: space-between; align-items: center;
+  padding: 0.85rem 1rem; background: var(--cream-dark); border-bottom: 1px solid var(--border-light);
+  font-size: 0.93rem; color: var(--navy);
+}
+.notif-head span { font-size: 0.84rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.notif-list { max-height: 330px; overflow-y: auto; overscroll-behavior: auto; }
+.notif-item { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border-light); border-left: 3px solid transparent; }
+.notif-item.is-new { background: #FFFBF0; border-left-color: var(--gold); }
+.notif-item-title { font-weight: 700; font-size: 0.93rem; color: var(--navy); }
+.notif-item-text { font-size: 0.88rem; color: var(--text-light); margin-top: 0.15rem; line-height: 1.45; }
+.notif-item-time { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; font-weight: 600; }
+.notif-empty { padding: 2rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.93rem; }
+.notif-empty i { display: block; font-size: 1.4rem; margin-bottom: 0.4rem; opacity: 0.6; }
+.notif-foot {
+  display: block; text-align: center; padding: 0.75rem; font-size: 0.88rem; font-weight: 700;
+  color: var(--burgundy); background: var(--white); border-top: 1px solid var(--border-light);
+}
+.notif-foot:hover { background: var(--cream); }
+@media (max-width: 560px) {
+  .notif-panel { position: fixed; left: 4vw; right: 4vw; top: 64px; width: auto; max-width: none; }
+  .notif-panel::before { display: none; }
+}
+
+/* ---- Digital ticket -------------------------------------------------------------------------- */
+.ticket-backdrop { backdrop-filter: blur(6px); }
+.ticket-modal {
+  position: relative; width: 100%; max-width: 780px; max-height: 94vh; overflow-y: auto; overflow-x: hidden;
+  padding: 0.5rem 0.25rem 0.25rem; animation: confirm-pop 0.2s ease-out;
+}
+.ticket-close {
+  position: absolute; top: 0.75rem; right: 0.75rem; z-index: 3; width: 32px; height: 32px; border-radius: 50%;
+  cursor: pointer; border: none; background: rgba(15, 27, 51, 0.08); color: var(--navy); transition: background 0.2s, transform 0.15s;
+}
+.ticket-close:hover { background: rgba(15, 27, 51, 0.2); transform: rotate(90deg); }
+.ticket-shadow { filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.45)); }
+
+.ticket {
+  --accent: #C5973B; --stub: 220px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 22px var(--stub);
+  background: #fff; border-radius: 20px; overflow: hidden; position: relative;
+  -webkit-mask:
+    radial-gradient(circle 13px at calc(100% - var(--stub) - 11px) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle 13px at calc(100% - var(--stub) - 11px) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+  mask:
+    radial-gradient(circle 13px at calc(100% - var(--stub) - 11px) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle 13px at calc(100% - var(--stub) - 11px) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+}
+.ticket-main {
+  position: relative; padding: 1.6rem 1.6rem 1.3rem 1.9rem;
+  background:
+    radial-gradient(320px 200px at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+    #fff;
+}
+.ticket-main::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 40%, #0F1B33)); }
+.ticket-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-right: 2.2rem; flex-wrap: wrap; gap: 0.5rem; }
+.ticket-chip {
+  font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.28rem 0.7rem; border-radius: 999px;
+  color: var(--navy); background: color-mix(in srgb, var(--accent) 20%, #fff); border: 1px solid color-mix(in srgb, var(--accent) 55%, #fff);
+}
+.ticket-chip i { margin-right: 5px; }
+.ticket-status { font-size: 0.84rem; font-weight: 800; color: var(--success); letter-spacing: 0.04em; }
+.ticket-status.attended { color: var(--info); }
+.ticket-label { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-muted); }
+.ticket-title { font-size: 1.65rem; line-height: 1.2; color: var(--navy); margin: 0.2rem 0 1.1rem; }
+.ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem 1.25rem; }
+.ticket-grid span { display: block; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+.ticket-grid strong { font-size: 0.98rem; color: var(--navy); line-height: 1.35; }
+.ticket-no { margin-top: 1.1rem; padding-top: 0.8rem; border-top: 1px dashed var(--border); font-family: 'Fira Code', Consolas, monospace; font-size: 0.88rem; font-weight: 600; color: var(--navy); letter-spacing: 0.04em; }
+.ticket-no span { font-family: var(--font-body); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-right: 8px; }
+
+.ticket-perforation { position: relative; background: #fff; border-left: 0; }
+.ticket-perforation::before { content: ''; position: absolute; left: 50%; top: 18px; bottom: 18px; border-left: 2px dashed var(--border); transform: translateX(-50%); }
+.ticket-perforation i { display: none; }
+
+.ticket-stub {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.9rem; padding: 1.4rem 1.1rem;
+  color: #fff; text-align: center;
+  background:
+    radial-gradient(200px 160px at 100% 0%, color-mix(in srgb, var(--accent) 35%, transparent), transparent 70%),
+    linear-gradient(160deg, #16213C, #0B1220);
+}
+.ticket-code { width: 128px; height: 128px; padding: 6px; background: #fff; border-radius: 10px; color: #0F1B33; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35); }
+.ticket-barcode { width: 100%; height: 34px; color: #fff; opacity: 0.9; }
+.ticket-stub-note { font-size: 0.8rem; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.8); line-height: 1.4; }
+
+.ticket-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 1.1rem; }
+.ticket-actions .btn-outline { background: #fff; }
+.ticket-cancel { color: var(--danger); background: #fff; border: 1px solid #E6B4B4; }
+.ticket-cancel:hover { background: var(--danger-bg); }
+
+@media (max-width: 680px) {
+  .ticket { grid-template-columns: 1fr; --stub: 0px; -webkit-mask: none; mask: none; }
+  .ticket-perforation { height: 22px; }
+  .ticket-perforation::before { left: 18px; right: 18px; top: 50%; bottom: auto; border-left: 0; border-top: 2px dashed var(--border); transform: translateY(-50%); }
+  .ticket-stub { flex-direction: row; flex-wrap: wrap; justify-content: space-around; padding: 1rem; }
+  .ticket-code { width: 96px; height: 96px; }
+  .ticket-barcode { max-width: 180px; }
+  .ticket-grid { grid-template-columns: 1fr; }
+  .ticket-title { font-size: 1.35rem; }
+}
+
+/* ---- Print: only the ticket ------------------------------------------------------------------------ */
+@media print {
+  body * { visibility: hidden !important; }
+  .ticket-print-area, .ticket-print-area * { visibility: visible !important; }
+  .ticket-print-area { position: fixed; left: 50%; top: 24mm; transform: translateX(-50%); width: 180mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .ticket-shadow { filter: none; }
+}
+
+.panel-card.scroll-area, .table-wrapper.table-scroll {
+  background-image:
+    linear-gradient(#fff 30%, transparent) top / 100% 18px no-repeat local,
+    linear-gradient(transparent, rgba(27, 42, 74, 0.12)) bottom / 100% 14px no-repeat scroll;
+}
+
+.ticket-close { background: rgba(255, 255, 255, 0.92); color: var(--navy); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+.ticket-close:hover { background: #fff; }

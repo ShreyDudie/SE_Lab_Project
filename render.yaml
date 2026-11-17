@@ -1,0 +1,15 @@
+# Render Blueprint: New -> Blueprint -> pick this repo. One free web service, no database needed.
+services:
+  - type: web
+    name: vjti-committee-manager
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/public/committees
+    autoDeploy: true
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true          # Render creates a random secret for you
+      - key: SESSION_COOKIE_SECURE
+        value: "1"                   # the site is served over HTTPS
+      - key: FLASK_DEBUG
+        value: "0"

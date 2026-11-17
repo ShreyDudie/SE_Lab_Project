@@ -54,9 +54,9 @@ export default function EventDetailsModal({ show, onClose, event, onRegister, is
           
           <div className="gap-row" style={{ color: '#CBD5E1', fontSize: '0.95rem', marginBottom: '1.5rem', fontWeight: 500 }}>
             <span><i className="fas fa-calendar-alt" style={{ color: '#94A3B8' }}></i> {formatDate(event.date)}</span>
-            <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
+            <span style={{ color: 'rgba(255,255,255,0.8)' }}>|</span>
             <span><i className="fas fa-clock" style={{ color: '#94A3B8' }}></i> {formatTime(event.start_time)} to {formatTime(event.end_time || 'Late')}</span>
-            <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
+            <span style={{ color: 'rgba(255,255,255,0.8)' }}>|</span>
             <span><i className="fas fa-map-marker-alt" style={{ color: '#94A3B8' }}></i> VJTI Main Campus</span>
           </div>
           
@@ -101,7 +101,7 @@ export default function EventDetailsModal({ show, onClose, event, onRegister, is
               <h4 style={{ marginBottom: '1rem', color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <i className="fas fa-trophy" style={{ color: '#FCD34D' }}></i> Prizes &amp; Rewards
               </h4>
-              <ul style={{ color: '#CBD5E1', paddingLeft: '1.2rem', fontSize: '0.85rem', lineHeight: '1.7' }}>
+              <ul style={{ color: '#CBD5E1', paddingLeft: '1.2rem', fontSize: '0.93rem', lineHeight: '1.7' }}>
                 <li style={{ marginBottom: '0.4rem' }}><strong style={{ color: '#FFFFFF' }}>1st Place:</strong> Certificates + 10 Dept Points</li>
                 <li style={{ marginBottom: '0.4rem' }}><strong style={{ color: '#FFFFFF' }}>2nd Place:</strong> Certificates + 5 Dept Points</li>
                 <li style={{ marginBottom: '0.4rem' }}><strong style={{ color: '#FFFFFF' }}>3rd Place:</strong> Certificates + 3 Dept Points</li>
@@ -111,10 +111,10 @@ export default function EventDetailsModal({ show, onClose, event, onRegister, is
 
             {tags.length > 0 && (
               <div style={{ marginBottom: '2rem' }}>
-                <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#94A3B8', marginBottom: '0.75rem', letterSpacing: '0.05em', fontWeight: 800 }}>Tags</h4>
+                <h4 style={{ fontSize: '0.84rem', textTransform: 'uppercase', color: '#94A3B8', marginBottom: '0.75rem', letterSpacing: '0.05em', fontWeight: 800 }}>Tags</h4>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {tags.map(tag => (
-                    <span key={tag} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: '#F1F5F9', padding: '0.3rem 0.8rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                    <span key={tag} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: '#F1F5F9', padding: '0.3rem 0.8rem', borderRadius: '6px', fontSize: '0.84rem', fontWeight: 600 }}>
                       {tag}
                     </span>
                   ))}
@@ -124,7 +124,7 @@ export default function EventDetailsModal({ show, onClose, event, onRegister, is
 
             {isUpcoming && (
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#94A3B8', marginBottom: '0.25rem', letterSpacing: '0.05em', fontWeight: 800 }}>Time Remaining</h4>
+                <h4 style={{ fontSize: '0.84rem', textTransform: 'uppercase', color: '#94A3B8', marginBottom: '0.25rem', letterSpacing: '0.05em', fontWeight: 800 }}>Time Remaining</h4>
                 <CountdownTimer date={event.date} startTime={event.start_time} />
               </div>
             )}

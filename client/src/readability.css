@@ -1,0 +1,52 @@
+/* ==========================================================================
+   Readability layer: larger base size, stronger text contrast.
+   Loaded last so it wins over earlier tokens.
+   ========================================================================== */
+
+/* Every rem-based size in the app scales from here (browser default is 16px). */
+html { font-size: 17px; }
+@media (min-width: 1500px) { html { font-size: 18px; } }
+@media (max-width: 560px) { html { font-size: 16.5px; } }
+
+:root {
+  /* Darker secondary text: the old greys (#666 / #999) were hard to read on cream. */
+  --text:       #26262B;
+  --text-light: #4A4A52;
+  --text-muted: #686872;
+}
+
+body { line-height: 1.65; letter-spacing: 0.005em; }
+
+/* Never let micro-labels fall below a comfortable size */
+.badge, .card-label, .stat-label, .section-subtitle, .page-label,
+.timeline-dow, .timeline-chip, .ev-tag, .ev-chip, .podium-score, .standings-note,
+.ticket-label, .footer-col h4 { min-height: 0; }
+
+.badge { font-size: 0.8rem; }
+
+/* Long-form copy reads better a touch larger */
+.ev-desc, .history-sub, .notif-item-text, .confirm-message, .thanks-note, .error-text { font-size: 0.95rem; }
+.timeline-title, .history-title, .notif-item-title { font-size: 1rem; }
+.footer-link, .footer-address, .footer-about p { font-size: 0.95rem; }
+
+/* Form controls: comfortable tap/read size */
+.form-input, .form-select, .form-textarea { font-size: 1rem; }
+.form-label { font-size: 0.82rem; }
+table, tbody td { font-size: 0.95rem; }
+thead th { font-size: 0.8rem; }
+
+/* Buttons */
+.btn { font-size: 0.92rem; }
+.btn-sm { font-size: 0.85rem; }
+
+/* Navbar / sidebar */
+.navbar-username { font-size: 0.9rem; }
+.sidebar-link { font-size: 0.98rem; }
+.sidebar-section-label { font-size: 0.8rem; }
+
+/* Committee poster cards: keep the "N upcoming" chip clear of the logo */
+.committee-poster-card { padding-top: 3.6rem; }
+.poster-count { font-size: 0.8rem; top: 0.8rem; right: 0.8rem; }
+
+/* Section headings on themed (dark) committee pages must always be legible */
+.section-header-themed .section-title { color: #FFFFFF; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); }

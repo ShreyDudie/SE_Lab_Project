@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    host: true, // listen on the LAN so a phone can open the ticket scan link
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:5000',

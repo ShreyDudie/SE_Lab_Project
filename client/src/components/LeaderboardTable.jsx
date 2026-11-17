@@ -5,7 +5,7 @@ export default function LeaderboardTable({ leaderboard }) {
         <div className="panel-title" style={{ fontSize: '1.4rem', color: '#FFFFFF', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '0.75rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <i className="fas fa-trophy" style={{ color: 'var(--gold)' }}></i> Points Table
         </div>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.05rem', fontStyle: 'italic', flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.05rem', fontStyle: 'italic', flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           No points recorded yet. Award points by concluding events.
         </p>
       </div>
@@ -32,7 +32,7 @@ export default function LeaderboardTable({ leaderboard }) {
               fontSize: '1.1rem',
               letterSpacing: '0.02em'
             }}>
-              {idx === 0 && <i className="fas fa-crown" style={{ marginRight: '6px', fontSize: '0.9rem' }}></i>}
+              {idx === 0 && <i className="fas fa-crown" style={{ marginRight: '6px', fontSize: '0.98rem' }}></i>}
               {item.branch}
             </span>
             <span className="leaderboard-score" style={{ 
@@ -41,7 +41,7 @@ export default function LeaderboardTable({ leaderboard }) {
               color: idx === 0 ? '#000' : '#FFFFFF',
               padding: '0.2rem 0.6rem',
               borderRadius: '4px',
-              fontSize: '0.9rem',
+              fontSize: '0.98rem',
               boxShadow: idx === 0 ? '0 0 10px rgba(252,211,77,0.4)' : 'none'
             }}>
               {item.score} PTS

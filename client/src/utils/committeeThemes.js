@@ -130,4 +130,18 @@ export function getThemeCSSVars(theme) {
   };
 }
 
+/**
+ * Accent colour per committee, used for event cards, timeline dots and chips.
+ */
+export const COMMITTEE_ACCENTS = {
+  Pratibimb: '#EF4444',
+  Enthusia: '#F97316',
+  Technovanza: '#3B82F6',
+  COC: '#22C55E',
+};
+
+export function getCommitteeAccent(name) {
+  return COMMITTEE_ACCENTS[name] || '#C5973B';
+}
+
 export default COMMITTEE_THEMES;

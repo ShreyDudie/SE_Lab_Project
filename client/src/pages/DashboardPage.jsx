@@ -2,27 +2,38 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlash } from '../components/FlashMessage';
+import BranchStandings from '../components/BranchStandings';
+import AnimatedNumber from '../components/AnimatedNumber';
+import Skeleton from '../components/Skeleton';
+import TicketModal from '../components/TicketModal';
+import WelcomeBanner from '../components/WelcomeBanner';
+import ErrorState from '../components/ErrorState';
+import { getCommitteeAccent } from '../utils/committeeThemes';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const flash = useFlash();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [ticketEvent, setTicketEvent] = useState(null);
 
-  useEffect(() => {
+  const load = () => {
     fetch('/api/dashboard', { credentials: 'include' })
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));
-  }, []);
+  };
 
-  if (loading) return <div className="main-content text-center"><p className="text-muted mt-3">Loading...</p></div>;
-  if (!data) return <div className="main-content"><p>Error loading dashboard.</p></div>;
+  useEffect(() => { load(); }, []);
+
+  if (loading) return <Skeleton variant="dashboard" />;
+  if (!data) return <ErrorState kind="server" onRetry={() => { setLoading(true); load(); }} />;
 
   // Pending approval
   if (data.pending_approval) {
     return (
       <div className="main-content">
+        <WelcomeBanner username={user.username} />
         <div className="pending-wrapper">
           <div className="pending-icon"><i className="fas fa-clock"></i></div>
           <h1>Account Pending Approval</h1>
@@ -39,9 +50,33 @@ export default function DashboardPage() {
     return (
       <div className="main-content">
         <div className="page-header">
+          <WelcomeBanner username={user.username} />
           <p className="page-label">Student Portal</p>
           <h1>Your Schedule</h1>
-          <p className="page-sub">Logged in as <strong>{user.username}</strong></p>
+          <p className="page-sub">Logged in as <strong>{user.username}</strong>{data.department ? <> &middot; {data.department} department</> : null}</p>
+        </div>
+
+        <div className="stats-row section-reveal">
+          <div className="stat-card stat-card-accent" style={{ '--accent': '#2A6496' }}>
+            <div className="stat-icon"><i className="fas fa-calendar-check"></i></div>
+            <div className="stat-value"><AnimatedNumber value={data.my_events.length} /></div>
+            <div className="stat-label">Active Registrations</div>
+          </div>
+          <div className="stat-card stat-card-accent" style={{ '--accent': '#2E7D4F' }}>
+            <div className="stat-icon"><i className="fas fa-user-check"></i></div>
+            <div className="stat-value"><AnimatedNumber value={(data.history || []).filter(h => h.status === 'Attended').length} /></div>
+            <div className="stat-label">Events Attended</div>
+          </div>
+          <div className="stat-card stat-card-accent" style={{ '--accent': '#C5973B' }}>
+            <div className="stat-icon"><i className="fas fa-medal"></i></div>
+            <div className="stat-value">{data.dept_standing ? `#${data.dept_standing.rank}` : '—'}</div>
+            <div className="stat-label">{data.dept_standing ? `${data.dept_standing.department} Standing · ${data.dept_standing.score} pts` : 'Dept Standing'}</div>
+          </div>
+          <div className="stat-card stat-card-accent" style={{ '--accent': '#8B2252' }}>
+            <div className="stat-icon"><i className="fas fa-bell"></i></div>
+            <div className="stat-value"><AnimatedNumber value={data.messages.length} /></div>
+            <div className="stat-label">Notifications</div>
+          </div>
         </div>
 
         <div className="flex-between mb-2">
@@ -60,14 +95,19 @@ export default function DashboardPage() {
                   <span className="badge badge-success">Confirmed</span>
                 </div>
                 <h3 style={{ margin: '0.4rem 0' }}>{event.title}</h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                <p style={{ fontSize: '0.93rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
                   <i className="fas fa-calendar-alt" style={{ marginRight: '6px' }}></i>
                   {new Date(event.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
                 <div style={{ marginTop: 'auto', borderTop: '1px dashed var(--border-light)', paddingTop: '1rem' }}>
-                  <Link to={`/committee/${event.committee_name}`} className="btn btn-outline btn-sm">
-                    Go to Portal <i className="fas fa-chevron-right" style={{ fontSize: '0.6rem', marginLeft: '4px' }}></i>
-                  </Link>
+                  <div className="gap-row" style={{ flexWrap: 'wrap' }}>
+                    <button type="button" className="btn btn-primary btn-sm" onClick={() => setTicketEvent(event)}>
+                      <i className="fas fa-ticket-alt"></i> View Ticket
+                    </button>
+                    <Link to={`/committee/${event.committee_id}`} className="btn btn-outline btn-sm">
+                      Go to Portal <i className="fas fa-chevron-right" style={{ fontSize: '0.8rem', marginLeft: '4px' }}></i>
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
@@ -81,9 +121,10 @@ export default function DashboardPage() {
 
         <div className="section-header">
           <h2 className="section-title">Notifications</h2>
+          {data.messages.length > 0 && <span className="section-subtitle">{data.messages.length} messages</span>}
         </div>
         {data.messages.length > 0 ? (
-          <div className="messages-list">
+          <div className="messages-list scroll-area">
             {data.messages.map((msg, idx) => (
               <div className="message-card" key={msg.id} style={{ background: 'var(--white)', border: '1px solid var(--border)', borderLeft: '4px solid var(--info)', padding: '1.25rem', borderRadius: 'var(--radius)', marginBottom: '1rem', boxShadow: 'var(--shadow-sm)' }}>
                 <h4 style={{ color: 'var(--navy)', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem' }}>
@@ -99,6 +140,36 @@ export default function DashboardPage() {
             <p>No new notifications from committees.</p>
           </div>
         )}
+        {data.history && data.history.length > 0 && (
+          <section className="mt-3 section-reveal">
+            <div className="section-header">
+              <h2 className="section-title">My Participation History</h2>
+              <span className="section-subtitle">{data.history.length} events</span>
+            </div>
+            <div className="panel-card history-list scroll-area">
+              {data.history.slice(0, 8).map(h => (
+                <div className="history-row" key={h.id} style={{ '--accent': getCommitteeAccent(h.committee_name) }}>
+                  <div className="history-dot"></div>
+                  <div className="history-main">
+                    <div className="history-title">{h.title}</div>
+                    <div className="history-sub">
+                      {h.committee_name} &middot; {new Date(h.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                  </div>
+                  {h.rating ? (
+                    <span className="history-rating" title="Your rating">
+                      {'★'.repeat(h.rating)}<span style={{ opacity: 0.25 }}>{'★'.repeat(5 - h.rating)}</span>
+                    </span>
+                  ) : null}
+                  <span className={`badge ${h.status === 'Attended' ? 'badge-success' : 'badge-muted'}`}>
+                    {h.status === 'Attended' ? 'Attended' : 'Missed'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="mt-3">
           <div className="section-header">
             <h2 className="section-title">Hall of Fame</h2>
@@ -107,19 +178,19 @@ export default function DashboardPage() {
             <div className="card-grid">
               {data.past.map(event => (
                 <div className="card card-hover-lift" key={event.id}>
-                  <div className="flex-between mb-1" style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>
+                  <div className="flex-between mb-1" style={{ fontSize: '0.84rem', color: 'var(--text-light)' }}>
                     <span>{new Date(event.date + 'T00:00:00').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</span>
                     <i className="fas fa-award" style={{ color: 'var(--gold)' }}></i>
                   </div>
                   <h3 style={{ margin: '0.4rem 0', fontSize: '1.1rem' }}>{event.title}</h3>
                   <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     <div className="flex-between" style={{ background: 'var(--warning-bg)', padding: '0.4rem 0.6rem', borderRadius: '4px' }}>
-                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--warning)' }}>WINNER</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--warning)' }}>WINNER</span>
                       <span className="badge badge-gold">{event.first_place_branch || '—'}</span>
                     </div>
                     <div className="flex-between" style={{ padding: '0.2rem 0.6rem' }}>
-                      <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)' }}>RUNNER UP</span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>{event.second_place_branch || '—'}</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>RUNNER UP</span>
+                      <span style={{ fontSize: '0.88rem', fontWeight: 700 }}>{event.second_place_branch || '—'}</span>
                     </div>
                   </div>
                 </div>
@@ -132,6 +203,13 @@ export default function DashboardPage() {
             </div>
           )}
         </section>
+
+        <TicketModal
+          show={!!ticketEvent}
+          event={ticketEvent}
+          onClose={() => setTicketEvent(null)}
+          onCancelled={load}
+        />
       </div>
     );
   }
@@ -155,7 +233,25 @@ export default function DashboardPage() {
             <div className="stat-value">{data.past_events.length}</div>
             <div className="stat-label">Archived</div>
           </div>
+          {data.stats && (
+            <>
+              <div className="stat-card">
+                <div className="stat-value"><AnimatedNumber value={data.stats.total_registrations} /></div>
+                <div className="stat-label">Total Registrations</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{data.stats.attendance_rate}%</div>
+                <div className="stat-label">Attendance Rate</div>
+              </div>
+            </>
+          )}
         </div>
+
+        {data.leaderboard && data.leaderboard.some(l => l.score > 0) && (
+          <div className="mb-3 section-reveal">
+            <BranchStandings leaderboard={data.leaderboard} title={`${data.committee.name} Standings`} compact />
+          </div>
+        )}
 
         <div className="flex-between mb-2">
           <div className="section-header" style={{ marginBottom: 0 }}>
@@ -174,7 +270,7 @@ export default function DashboardPage() {
                   <span className="badge badge-success">Active</span>
                 </div>
                 <h3 style={{ margin: '0.4rem 0' }}>{event.title}</h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
                   {new Date(event.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
                 <Link to={`/committee/${data.committee.id}`} className="btn btn-outline btn-sm mt-1">Manage</Link>
@@ -199,11 +295,11 @@ export default function DashboardPage() {
                   <span className="badge badge-muted">Completed</span>
                 </div>
                 <h3 style={{ margin: '0.4rem 0' }}>{event.title}</h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
                   {new Date(event.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
                 <Link to={`/event_results/${event.id}`} className="btn btn-outline btn-sm mt-1">
-                  View Results <i className="fas fa-chevron-right" style={{ fontSize: '0.6rem' }}></i>
+                  View Results <i className="fas fa-chevron-right" style={{ fontSize: '0.8rem' }}></i>
                 </Link>
               </div>
             ))}
@@ -317,6 +413,13 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        {/* ═══ Global Inter-Branch Standings ═══ */}
+        {data.leaderboard && (
+          <div className="mb-3 section-reveal">
+            <BranchStandings leaderboard={data.leaderboard} title="Global Inter-Branch Leaderboard" />
+          </div>
+        )}
+
         {/* ═══ Existing Admin Sections (PRESERVED) ═══ */}
         <div className="stats-row">
           <div className="stat-card">
@@ -342,7 +445,7 @@ export default function DashboardPage() {
             <div className="section-header">
               <h2 className="section-title">All Events</h2>
             </div>
-            <div className="table-wrapper">
+            <div className="table-wrapper table-scroll">
               <table>
                 <thead>
                   <tr>
@@ -377,7 +480,7 @@ export default function DashboardPage() {
                 {data.pending_heads.map(head => (
                   <div className="card mb-1" key={head.id}>
                     <p style={{ fontWeight: 700 }}>{head.username}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                    <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
                       Committee #{head.assigned_committee}
                     </p>
                     <button className="btn btn-success btn-sm btn-block" onClick={() => handleApprove(head.id)}>

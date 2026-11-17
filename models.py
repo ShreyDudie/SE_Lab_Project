@@ -151,6 +151,7 @@ class Registration(db.Model):
     status = db.Column(db.String(20), default='Registered')
     rating = db.Column(db.Integer, nullable=True)
     feedback = db.Column(db.Text, nullable=True)
+    scanned_at = db.Column(db.DateTime, nullable=True)  # set when the ticket QR is scanned at entry
 
     def to_dict(self):
         return {
@@ -158,6 +159,7 @@ class Registration(db.Model):
             'user_id': self.user_id,
             'event_id': self.event_id,
             'status': self.status,
+            'scanned_at': self.scanned_at.isoformat() if self.scanned_at else None,
             'rating': self.rating,
             'feedback': self.feedback,
             'username': self.user.username if self.user else None,
