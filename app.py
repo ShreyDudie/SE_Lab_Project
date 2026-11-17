@@ -11,7 +11,13 @@ from dotenv import load_dotenv
 load_dotenv() 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-key-for-dev')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///default.db')
+# Local default is a SQLite file. In production set DATABASE_URL to a Postgres URL so data persists.
+_db_url = os.getenv('DATABASE_URL', 'sqlite:///default.db')
+if _db_url.startswith('postgres://'):            # some hosts still hand out the old scheme
+    _db_url = 'postgresql://' + _db_url[len('postgres://'):]
+app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
+# Hosted databases drop idle connections: test each one before use and recycle them regularly
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_pre_ping': True, 'pool_recycle': 280}
 
 # Session cookie hardening (set SESSION_COOKIE_SECURE=1 when served over HTTPS)
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -588,10 +594,14 @@ def ensure_schema():
     """Create tables and add columns introduced after the first release (SQLite has no auto-migrate)."""
     with app.app_context():
         db.create_all()
-        cols = [row[1] for row in db.session.execute(db.text("PRAGMA table_info(registration)"))]
-        if cols and 'scanned_at' not in cols:
-            db.session.execute(db.text("ALTER TABLE registration ADD COLUMN scanned_at DATETIME"))
-            db.session.commit()
+        # Works on SQLite and Postgres alike (the old PRAGMA check was SQLite-only)
+        inspector = db.inspect(db.engine)
+        if inspector.has_table('registration'):
+            cols = [c['name'] for c in inspector.get_columns('registration')]
+            if 'scanned_at' not in cols:
+                col_type = 'DATETIME' if db.engine.dialect.name == 'sqlite' else 'TIMESTAMP'
+                db.session.execute(db.text(f"ALTER TABLE registration ADD COLUMN scanned_at {col_type}"))
+                db.session.commit()
 
 ensure_schema()
 

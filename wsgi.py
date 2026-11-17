@@ -1,20 +1,7 @@
 """
-Production entry point (gunicorn wsgi:app).
+Production entry point for the web server (gunicorn wsgi:app).
 
-On a host with a temporary disk (e.g. Render's free tier) the SQLite file starts empty after
-every restart. This seeds the demo accounts + data automatically when the database is empty,
-so the deployed site always has content. Existing data is never touched.
+The database is prepared (tables + demo data) by bootstrap_db.py, which runs once
+BEFORE the server starts, so this module only needs to expose the Flask app.
 """
-from app import app, db
-from models import Event, User
-
-
-def bootstrap():
-    with app.app_context():
-        db.create_all()
-        if Event.query.count() == 0 or User.query.count() == 0:
-            from seed_demo_data import seed
-            seed()
-
-
-bootstrap()
+from app import app  # noqa: F401  (importing app also applies any pending schema upgrade)

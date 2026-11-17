@@ -1,4 +1,6 @@
-# Render Blueprint: New -> Blueprint -> pick this repo. One free web service, no database needed.
+# Render Blueprint: New -> Blueprint -> pick this repo.
+# Creates a web service AND a free Postgres database, and connects them for you.
+# The database is what makes the data persistent; the demo data is loaded into it once (bootstrap_db.py).
 services:
   - type: web
     name: vjti-committee-manager
@@ -7,9 +9,19 @@ services:
     healthCheckPath: /api/public/committees
     autoDeploy: true
     envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vjti-db
+          property: connectionString   # filled in automatically, nothing to copy or paste
       - key: SECRET_KEY
-        generateValue: true          # Render creates a random secret for you
+        generateValue: true            # Render creates a random secret for you
       - key: SESSION_COOKIE_SECURE
-        value: "1"                   # the site is served over HTTPS
+        value: "1"                     # the site is served over HTTPS
       - key: FLASK_DEBUG
         value: "0"
+
+databases:
+  - name: vjti-db
+    plan: free
+    databaseName: vjti
+    user: vjti
